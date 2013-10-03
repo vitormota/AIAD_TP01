@@ -4,7 +4,6 @@
 *.jar
 *.war
 *.ear
-/README.md
 /lib
 /hs_err_pid3478.log
 /I-am-a-PC.settings.xml
