@@ -21,7 +21,7 @@ public class BurnPlanEnv extends Plan
 	{
 		IEnvironmentSpace env = (IEnvironmentSpace)getBeliefbase().getBelief("env").getFact();
 
-		// Pickup the garbarge.
+		// Pickup the garbadscge.
 		IGoal pickup = createGoal("pick");
 		dispatchSubgoalAndWait(pickup);
 
