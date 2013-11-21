@@ -8,3 +8,8 @@
 /hs_err_pid3478.log
 /I-am-a-PC.settings.xml
 /jcc.settings.xml
+bin*
+.classpath
+
+project.properties
+Me-a-PC.settings.xml

@@ -1,18 +1,18 @@
 package cityGarbageCollector.gui;
 
 import java.awt.Color;
-import java.awt.Graphics;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.io.File;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.Timer;
 
 import cityGarbageCollector.Location;
 
@@ -57,17 +57,6 @@ public class City extends JPanel {
 			}
 		}
 	}
-	
-	public void unpaintAgent(Location loc){
-		city_squares[loc.y][loc.x].img = null;
-		city_squares[loc.y][loc.x].repaint();
-	}
-	
-	public void paintAgent(Location loc) {
-		// TODO Auto-generated method stub
-		city_squares[loc.y][loc.x].setImage("images/collector.png");
-		city_squares[loc.y][loc.x].repaint();
-	}
 
 	/**
 	 * @return the size_h
@@ -83,9 +72,17 @@ public class City extends JPanel {
 		return size_w;
 	}
 
-	private class Gridpanel extends JPanel implements MouseListener {
+	public Gridpanel getSpaceByLocation(Location l) {
+		return city_squares[l.y][l.x];
+	}
+
+	public class Gridpanel extends JLabel implements MouseListener {
 		public int x, y;
 		public Image img;
+		/**
+		 * Flags for objects on this space
+		 */
+		public boolean collector = false, burner = false, waste = false;
 
 		public Gridpanel(int x, int y) {
 			// TODO Auto-generated constructor stub
@@ -95,19 +92,26 @@ public class City extends JPanel {
 			addMouseListener(this);
 		}
 
-		public void setImage(String path) {
-			this.img = new ImageIcon(path).getImage();
-		}
+		public void updateImage() throws IOException {
+			if (collector) {
+				setIcon(new ImageIcon(ImageIO.read(new File("images/collector.png"))));
 
-		public void paintComponent(Graphics g) {
-			g.drawImage(img, 0, 0, null);
-			System.out.println("paint component");
+				return;
+			}
+			if (burner) {
+				return;
+			}
+			if (waste) {
+				return;
+			}
+			// if none, then put background back
+			setIcon(null);
 		}
 
 		@Override
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
-
+			System.out.println("Clicked on: " + x + "," + y);
 		}
 
 		@Override
@@ -131,10 +135,8 @@ public class City extends JPanel {
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			// TODO Auto-generated method stub
-			System.out.println("Clicked on: " + x + "," + y);
+
 		}
 	}
-
-	
 
 }

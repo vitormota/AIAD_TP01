@@ -5,25 +5,21 @@ import jadex.bdiv3.annotation.PlanAPI;
 import jadex.bdiv3.annotation.PlanBody;
 import jadex.bdiv3.annotation.PlanCapability;
 import jadex.bdiv3.runtime.IPlan;
-import cityGarbageCollector.agent.CollectorBDI;
+import cityGarbageCollector.agent.CityBDI;
 
 @Plan
-public class Wander {
+public class MapUpdate {
 
 	@PlanCapability
-	protected CollectorBDI collector;
+	protected CityBDI city;
 
 	@PlanAPI
 	protected IPlan rplan;
 
 	// -------- constructors --------
 
-	/**
-	 * Create a new plan.
-	 */
-	public Wander()
-	{
-		System.out.println("created: " + this);
+	public MapUpdate() {
+		// TODO Auto-generated constructor stub
 	}
 
 	// -------- methods --------
@@ -34,7 +30,8 @@ public class Wander {
 	 */
 	@PlanBody
 	public void body() throws InterruptedException{
-		collector.updatePosition();
+		city.updateMap();
+		Thread.sleep(500);
 	}
-
+	
 }

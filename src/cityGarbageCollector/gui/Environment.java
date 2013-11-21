@@ -8,6 +8,7 @@ import java.awt.BorderLayout;
 import javax.swing.JFrame;
 
 import cityGarbageCollector.Location;
+import cityGarbageCollector.gui.City.Gridpanel;
 
 /**
  * User interface, will contains every component for user interaction
@@ -43,14 +44,9 @@ public class Environment extends JFrame{
 	public int getCityHeight(){
 		return city.getSize_h();
 	}
-
-	public void unpaintAgent(Location loc) {
-		// TODO Auto-generated method stub
-		city.unpaintAgent(loc);
-	}
 	
-	public void paintAgent(Location loc){
-		city.paintAgent(loc);
+	public Gridpanel getCitySpacebyLocation(Location l){
+		return city.getSpaceByLocation(l);
 	}
 
 }
