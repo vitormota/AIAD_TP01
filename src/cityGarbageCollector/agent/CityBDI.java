@@ -1,5 +1,6 @@
 package cityGarbageCollector.agent;
 
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import jadex.bdiv3.BDIAgent;
@@ -45,7 +46,12 @@ public class CityBDI {
 	 */
 	@AgentBody
 	public void body() {
-		env = new Environment(agent.getExternalAccess());
+		try {
+			env = new Environment(agent.getExternalAccess());
+		} catch (FileNotFoundException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		GCollector.getInstance().setEnv(env);
 		agent.dispatchTopLevelGoal(new PerformMapUpdate()).get();
 	}
