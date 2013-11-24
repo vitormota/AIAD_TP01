@@ -31,7 +31,7 @@ public class MapUpdate {
 	@PlanBody
 	public void body() throws InterruptedException{
 		city.updateMap();
-		Thread.sleep(500);
+		Thread.sleep(100);
 	}
 	
 }

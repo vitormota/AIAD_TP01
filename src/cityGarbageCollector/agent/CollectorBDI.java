@@ -1,5 +1,7 @@
 package cityGarbageCollector.agent;
 
+import java.util.LinkedList;
+
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
@@ -15,12 +17,11 @@ import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
+import cityGarbageCollector.Vertex;
 import cityGarbageCollector.plan.Wander;
 
 @Agent
-@Plans({
-		@Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class))
-})
+@Plans({ @Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class)) })
 public class CollectorBDI {
 
 	@Agent
@@ -30,10 +31,12 @@ public class CollectorBDI {
 	private Location position;
 	@Belief
 	private boolean pause = false;
+	private LinkedList<Location> steps;
 
 	@AgentCreated
 	public void init() {
 		position = new Location(0, 0);
+		steps = new LinkedList<>();
 		GCollector.getInstance().addAgent(this);
 	}
 
@@ -43,14 +46,22 @@ public class CollectorBDI {
 	}
 
 	@AgentKilled
-	public void killed()
-	{
+	public void killed() {
 
 	}
 
 	public void updatePosition() throws InterruptedException {
-		this.position.autoMove();
-		Thread.sleep(1000);
+		// this.position.autoMove();
+		if (this.steps != null && this.steps.size() == 0) {
+			// ask for new route
+			steps = GCollector.getInstance().getAgentTrip(position);
+		}
+		if(steps!=null){
+			this.position = steps.removeFirst();
+		}else{
+			this.position.autoMove();
+		}
+		Thread.sleep(500);
 		// DEBUG
 		System.out.println(position);
 	}
@@ -62,8 +73,7 @@ public class CollectorBDI {
 		 * Suspend the goal when on pause.
 		 */
 		@GoalContextCondition(rawevents = "pause")
-		public boolean checkContext()
-		{
+		public boolean checkContext() {
 			return !pause;
 		}
 

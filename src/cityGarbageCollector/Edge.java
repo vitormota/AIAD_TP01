@@ -34,4 +34,14 @@ public class Edge {
 		// TODO Auto-generated method stub
 		return from.copyLocation();
 	}
+	
+	public Vertex getTo(){
+		return this.to;
+	}
+
+	public Location getDestLocation() {
+		// TODO Auto-generated method stub
+		return to.copyLocation();
+	}
+	
 }

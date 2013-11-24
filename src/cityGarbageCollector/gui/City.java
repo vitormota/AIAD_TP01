@@ -1,6 +1,5 @@
 package cityGarbageCollector.gui;
 
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
@@ -8,21 +7,21 @@ import java.awt.event.MouseListener;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.LinkedList;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 
 import util.custom.StretchIcon;
 import cityGarbageCollector.Edge;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.RoadMap;
+import cityGarbageCollector.RoadMap.Direction;
 import cityGarbageCollector.RoadMap.Road;
+import cityGarbageCollector.Vertex;
 
 public class City extends JPanel {
 
@@ -80,6 +79,15 @@ public class City extends JPanel {
 		city_squares = new Gridpanel[getSize_h()][getSize_w()];
 	}
 
+	public LinkedList<Location> getAgentTrip(Location loc) {
+		LinkedList<Vertex> verts = map.getAgentCircuit(map.getVertexByLocation(loc));
+		LinkedList<Location> res = new LinkedList<>();
+		for (Vertex v : verts) {
+			res.add(v.copyLocation());
+		}
+		return res;
+	}
+
 	/**
 	 * version 0.1 draw a simple grid
 	 */
@@ -98,12 +106,16 @@ public class City extends JPanel {
 		Road[] roads = map.getRoads();
 		for (Road r : roads) {
 			if (r.turn) {
-				city_squares[r.location.y][r.location.x].twoway_road = true;
-				city_squares[r.location.y][r.location.x].twoway_road_vert = true;
-			} else if (r.direction == Edge.HORIZONTAL)
-				city_squares[r.location.y][r.location.x].twoway_road = true;
-			else if (r.direction == Edge.VERTICAL)
-				city_squares[r.location.y][r.location.x].twoway_road_vert = true;
+				city_squares[r.location.y][r.location.x].oneway_road = true;
+				city_squares[r.location.y][r.location.x].oneway_road_vert = true;
+			} else if (r.direction == Direction.NORTH)
+				city_squares[r.location.y][r.location.x].oneway_road_north = true;
+			else if (r.direction == Direction.SOUTH)
+				city_squares[r.location.y][r.location.x].oneway_road_south = true;
+			else if (r.direction == Direction.WEST)
+				city_squares[r.location.y][r.location.x].oneway_road_west = true;
+			else if (r.direction == Direction.EAST)
+				city_squares[r.location.y][r.location.x].oneway_road_east = true;
 			try {
 				city_squares[r.location.y][r.location.x].updateImage();
 			} catch (IOException e) {
@@ -138,7 +150,8 @@ public class City extends JPanel {
 		 * Flags for objects on this space
 		 */
 		public boolean collector = false, burner = false, waste = false, oneway_road = false, twoway_road = false,
-				oneway_road_vert = false, twoway_road_vert = false;
+				oneway_road_vert = false, twoway_road_vert = false, oneway_road_east = false, oneway_road_west = false,
+				oneway_road_north = false, oneway_road_south = false;
 
 		public Gridpanel(int x, int y) {
 			// TODO Auto-generated constructor stub
@@ -150,7 +163,7 @@ public class City extends JPanel {
 
 		public void updateImage() throws IOException {
 			if (collector) {
-				setIcon(new StretchIcon(ImageIO.read(new File("images/collector_on_road.png")),false));
+				setIcon(new StretchIcon(ImageIO.read(new File("images/collector_on_road.png")), false));
 
 				return;
 			}
@@ -160,10 +173,32 @@ public class City extends JPanel {
 			if (waste) {
 				return;
 			}
+			if (oneway_road && oneway_road_vert) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/crossroad.png")), false));
+				return;
+			}
 			if (twoway_road && twoway_road_vert) {
 				setIcon(new StretchIcon(ImageIO.read(new File("images/crossroad.png")), false));
 				return;
 			}
+
+			if (oneway_road_east) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/oneway_road_east.png")), false));
+				return;
+			}
+			if (oneway_road_west) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/oneway_road_west.png")), false));
+				return;
+			}
+			if (oneway_road_north) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/oneway_road_north.png")), false));
+				return;
+			}
+			if (oneway_road_south) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/oneway_road_south.png")), false));
+				return;
+			}
+
 			if (twoway_road) {
 				setIcon(new StretchIcon(ImageIO.read(new File("images/twoway_road.png")), false));
 				return;

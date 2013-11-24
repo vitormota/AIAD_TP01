@@ -1,6 +1,7 @@
 package cityGarbageCollector;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.gui.Environment;
@@ -59,6 +60,11 @@ public class GCollector {
 
 	public Environment getEnv() {
 		return this.env;
+	}
+	
+	public LinkedList<Location> getAgentTrip(Location pos){
+		if(env == null) return null;
+		return env.getAgentTrip(pos);
 	}
 
 }

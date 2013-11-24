@@ -3,9 +3,17 @@ package cityGarbageCollector;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.Stack;
 
+/**
+ * Map of roads, graph and operations
+ * 
+ * @author vitor
+ * 
+ */
 public class RoadMap {
 
 	/**
@@ -19,6 +27,10 @@ public class RoadMap {
 
 	private boolean error_state = false;
 
+	/**
+	 * List of pointers to vertices that are turns.
+	 * Not copies
+	 */
 	private List<Vertex> turns;
 
 	private List<Vertex> vertices;
@@ -51,12 +63,22 @@ public class RoadMap {
 	public Road[] getRoads() {
 		List<Edge> edges = getEdges();
 		Road[] res = new Road[edges.size()];
-		char dir;
+		Direction dir;
 		boolean turn;
 		Location loc;
+		Edge e;
 		for (int i = 0; i < res.length; i++) {
+			e = edges.get(i);
 			turn = isTurn(getVertexByLocation(edges.get(i).getSourceLocation()));
-			dir = edges.get(i).getDirection();
+			if(e.getSourceLocation().x < e.getDestLocation().x){
+				dir = Direction.EAST;
+			}else if(e.getSourceLocation().x > e.getDestLocation().x){
+				dir = Direction.WEST;
+			}else if(e.getSourceLocation().y > e.getDestLocation().y){
+				dir = Direction.NORTH;
+			}else{
+				dir = Direction.SOUTH;
+			}
 			loc = edges.get(i).getSourceLocation();
 			res[i] = new Road(dir, loc, turn);
 		}
@@ -175,6 +197,91 @@ public class RoadMap {
 		}
 	}
 
+	/*
+	 * ##############################################################
+	 * # #
+	 * # Graph search methods #
+	 * # #
+	 * ##############################################################
+	 */
+
+	/**
+	 * Depth-first search algorithm to compute the travel
+	 * sequence for collectors
+	 * 
+	 * @return a linked list containing to sequence of edges to be traveled
+	 */
+	public LinkedList<Vertex> getAgentCircuit(Vertex start) {
+		LinkedList<Vertex> res = new LinkedList<>();
+		Stack<Edge> s = new Stack<>();
+		res.addLast(start);
+		boolean found;
+		do {
+			if (start.getEdges().size() == 0)
+				return res;
+			if (start.getEdges().size() == 1) {
+				// if one -> relax that
+				res.addLast(start.getEdges().get(0).getTo());
+			} else {
+				for (Edge e : start.getEdges()) {
+					if (!res.contains(e.getTo())) {
+						s.push(e);
+					}
+				}
+				if (s.size() != 0) {
+					if (start.getEdges().contains(s.peek())) {
+						res.addLast(s.pop().getTo());
+					} else {
+						Vertex v = searchAhead(start, res);
+						if (v == null) {
+							return res;
+						}
+						res.addLast(v);
+					}
+				}
+			}
+			start = res.getLast();
+		} while (!allVisited(res));
+		return res;
+	}
+
+	private boolean allVisited(LinkedList<Vertex> list) {
+		// TODO Auto-generated method stub
+		return list.containsAll(vertices);
+	}
+
+	private Vertex searchAhead(Vertex start, LinkedList<Vertex> list) {
+		// TODO Auto-generated method stub
+		List<Vertex> lv = new ArrayList<>();
+		lv.add(start);
+		Stack<Edge> s = new Stack<>();
+		Edge e;
+		for (Edge edge : start.getEdges()) {
+			s.push(edge);
+			while (s.size() != 0) {
+				e = s.pop();
+				if (!list.contains(e.getTo())) {
+					return edge.getTo();
+				} else {
+					if (!lv.contains(e.getTo())) {
+						// prevent loop
+						lv.add(e.getTo());
+						addToStack(e.getTo().getEdges(), s);
+					}
+
+				}
+			}
+		}
+		return null;
+	}
+
+	private void addToStack(List<Edge> edges, Stack<Edge> s) {
+		// TODO Auto-generated method stub
+		for (int i = 0; i < edges.size(); i++) {
+			s.push(edges.get(i));
+		}
+	}
+
 	public Vertex getVertexByLocation(Location loc) {
 		for (Vertex v : vertices) {
 			if (v.equals(new Vertex(loc))) {
@@ -207,12 +314,16 @@ public class RoadMap {
 		return true;
 	}
 
+	public enum Direction {
+		NORTH,SOUTH,EAST,WEST
+	};
+	
 	public class Road {
 		public boolean turn;
-		public char direction;
+		public Direction direction;
 		public Location location;
 
-		public Road(char dir, Location loc, boolean turn) {
+		public Road(Direction dir, Location loc, boolean turn) {
 			// TODO Auto-generated constructor stub
 			location = loc.clone();
 			direction = dir;

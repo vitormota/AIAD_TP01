@@ -23,7 +23,7 @@ public class Wander {
 	 */
 	public Wander()
 	{
-		System.out.println("created: " + this);
+		//System.out.println("created: " + this);
 	}
 
 	// -------- methods --------
