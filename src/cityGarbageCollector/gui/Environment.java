@@ -5,6 +5,7 @@ import jadex.commons.gui.SGUI;
 
 import java.awt.BorderLayout;
 import java.io.FileNotFoundException;
+import java.util.LinkedList;
 
 import javax.swing.JFrame;
 
@@ -50,6 +51,10 @@ public class Environment extends JFrame{
 	
 	public Gridpanel getCitySpacebyLocation(Location l){
 		return city.getSpaceByLocation(l);
+	}
+	
+	public LinkedList<Location> getAgentTrip(Location loc){
+		return city.getAgentTrip(loc);
 	}
 
 }

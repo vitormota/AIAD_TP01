@@ -1,5 +1,7 @@
 package cityGarbageCollector.agent;
 
+import java.util.LinkedList;
+
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
@@ -15,6 +17,7 @@ import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
+import cityGarbageCollector.Vertex;
 import cityGarbageCollector.plan.PickUpWastePlan;
 import cityGarbageCollector.plan.Wander;
 
@@ -37,6 +40,7 @@ public class CollectorBDI {
 	private Location position;
 	@Belief
 	private boolean pause = false;
+	private LinkedList<Location> steps;
 
 	public int getRemainingCapacity() {
 		return capacity-actualWasteQuantity;
@@ -45,6 +49,7 @@ public class CollectorBDI {
 	@AgentCreated
 	public void init() {
 		position = new Location(0, 0);
+steps = new LinkedList<>();
 		capacity=50;
 		GCollector.getInstance().addAgent(this);
 		actualWasteQuantity=0;
@@ -52,7 +57,7 @@ public class CollectorBDI {
 
 	@AgentBody
 	public void body() {
-		agent.dispatchTopLevelGoal(new PerformPatrol());
+		agent.dispatchTopLevelGoal(new PerformPatrol()).get();
 		agent.dispatchTopLevelGoal(new checkContainer());
 		System.out.println("agentbody");
 	}
@@ -64,8 +69,17 @@ public class CollectorBDI {
 	}
 
 	public void updatePosition() throws InterruptedException {
-		this.position.autoMove();
-		Thread.sleep(1000);
+		// this.position.autoMove();
+		if (this.steps != null && this.steps.size() == 0) {
+			// ask for new route
+			steps = GCollector.getInstance().getAgentTrip(position);
+		}
+		if(steps!=null){
+			this.position = steps.removeFirst();
+		}else{
+			this.position.autoMove();
+		}
+		Thread.sleep(500);
 		// DEBUG
 		//System.out.println(position);
 	}
@@ -87,14 +101,15 @@ public class CollectorBDI {
 	
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class PerformPatrol {
+
 		/**
 		 * Suspend the goal when on pause.
 		 */
 		@GoalContextCondition(rawevents = "pause")
-		public boolean checkContext()
-		{
+		public boolean checkContext(){
 			return !pause;
 		}
+
 	}
 	
 
