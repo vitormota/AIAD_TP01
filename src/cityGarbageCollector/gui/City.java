@@ -6,17 +6,28 @@ import java.awt.Image;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 
+import util.custom.StretchIcon;
+import cityGarbageCollector.Edge;
 import cityGarbageCollector.Location;
+import cityGarbageCollector.RoadMap;
+import cityGarbageCollector.RoadMap.Road;
 
 public class City extends JPanel {
+
+	public static JLabel lastSelected = null;
+
 	/**
 	 * City size in blocks width
 	 */
@@ -32,6 +43,11 @@ public class City extends JPanel {
 	private Gridpanel[][] city_squares;
 
 	/**
+	 * The city map (graph)
+	 */
+	private RoadMap map;
+
+	/**
 	 * Start a new instance of the city road map, witch is a grid
 	 * 
 	 * @param width
@@ -42,7 +58,26 @@ public class City extends JPanel {
 	public City(int width, int height) {
 		this.size_w = width;
 		this.size_h = height;
-		city_squares = new Gridpanel[getSize_w()][getSize_w()];
+		city_squares = new Gridpanel[getSize_h()][getSize_w()];
+	}
+
+	/**
+	 * Start a new instance of the city road map, witch is a grid
+	 * with roads specified on a file
+	 * 
+	 * @param width
+	 *            in blocks
+	 * @param height
+	 *            in blocks
+	 * @param map_file
+	 *            the file containing the city map
+	 * @throws FileNotFoundException
+	 */
+	public City(String map_file) throws FileNotFoundException {
+		this.map = new RoadMap(map_file);
+		this.size_w = map.sizeX;
+		this.size_h = map.sizeY;
+		city_squares = new Gridpanel[getSize_h()][getSize_w()];
 	}
 
 	/**
@@ -54,6 +89,26 @@ public class City extends JPanel {
 			for (int j = 0; j < getSize_w(); j++) {
 				city_squares[i][j] = new Gridpanel(i, j);
 				add(city_squares[i][j]);
+			}
+		}
+	}
+
+	public void drawMap() {
+		// TODO Auto-generated method stub
+		Road[] roads = map.getRoads();
+		for (Road r : roads) {
+			if (r.turn) {
+				city_squares[r.location.y][r.location.x].twoway_road = true;
+				city_squares[r.location.y][r.location.x].twoway_road_vert = true;
+			} else if (r.direction == Edge.HORIZONTAL)
+				city_squares[r.location.y][r.location.x].twoway_road = true;
+			else if (r.direction == Edge.VERTICAL)
+				city_squares[r.location.y][r.location.x].twoway_road_vert = true;
+			try {
+				city_squares[r.location.y][r.location.x].updateImage();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
 			}
 		}
 	}
@@ -82,19 +137,21 @@ public class City extends JPanel {
 		/**
 		 * Flags for objects on this space
 		 */
-		public boolean collector = false, burner = false, container = false;
+
+		public boolean collector = false, burner = false, oneway_road = false, twoway_road = false,
+				oneway_road_vert = false, twoway_road_vert = false,container = false;
 
 		public Gridpanel(int x, int y) {
 			// TODO Auto-generated constructor stub
 			this.x = x;
 			this.y = y;
-			this.setBorder(BorderFactory.createLineBorder(Color.RED));
+			// this.setBorder(BorderFactory.createLineBorder(Color.RED));
 			addMouseListener(this);
 		}
 
 		public void updateImage() throws IOException {
 			if (collector) {
-				setIcon(new ImageIcon(ImageIO.read(new File("images/collector.png"))));
+				setIcon(new StretchIcon(ImageIO.read(new File("images/collector_on_road.png")),false));
 				return;
 			}
 			if (burner) {
@@ -102,6 +159,18 @@ public class City extends JPanel {
 			}
 			if (container) {
 				setIcon(new ImageIcon(ImageIO.read(new File("images/garbage.png"))));
+				return;
+			}
+			if (twoway_road && twoway_road_vert) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/crossroad.png")), false));
+				return;
+			}
+			if (twoway_road) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/twoway_road.png")), false));
+				return;
+			}
+			if (twoway_road_vert) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/twoway_road_vert.png")), false));
 				return;
 			}
 			// if none, then put background back
@@ -112,6 +181,12 @@ public class City extends JPanel {
 		public void mouseClicked(MouseEvent e) {
 			// TODO Auto-generated method stub
 			System.out.println("Clicked on: " + x + "," + y);
+			if (lastSelected != null) {
+				lastSelected.setBorder(null);
+			}
+			setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
+
+			lastSelected = (JLabel) e.getComponent();
 		}
 
 		@Override

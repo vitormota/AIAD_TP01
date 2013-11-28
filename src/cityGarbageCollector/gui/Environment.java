@@ -4,6 +4,7 @@ import jadex.bridge.IExternalAccess;
 import jadex.commons.gui.SGUI;
 
 import java.awt.BorderLayout;
+import java.io.FileNotFoundException;
 
 import javax.swing.JFrame;
 
@@ -26,11 +27,13 @@ public class Environment extends JFrame{
 	
 	/**
 	 *  ONLY FOR TESTING
+	 * @throws FileNotFoundException 
 	 */
-	public Environment(final IExternalAccess agent) {
+	public Environment(final IExternalAccess agent) throws FileNotFoundException {
 		// TODO Auto-generated constructor stub
-		city = new City(10, 10);
+		city = new City("maps/roadmap_1.map");
 		city.drawGrid();
+		city.drawMap();
 		getContentPane().add(city,BorderLayout.CENTER);
 		setSize(600, 600);
 		setLocation(SGUI.calculateMiddlePosition(Environment.this));

@@ -59,7 +59,7 @@ public class Location {
 	}
 
 	public String toString() {
-		return "Location: " + x + "," + y + ".";
+		return x + "," + y;
 	}
 
 }
