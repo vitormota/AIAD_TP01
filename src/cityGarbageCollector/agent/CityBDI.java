@@ -14,6 +14,7 @@ import jadex.bdiv3.annotation.Trigger;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import cityGarbageCollector.GCollector;
+import cityGarbageCollector.GContainer;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.gui.Environment;
 import cityGarbageCollector.plan.MapUpdate;
@@ -32,7 +33,10 @@ public class CityBDI {
 	protected BDIAgent agent;
 
 	@Belief
-	protected Location[] agent_locations;
+	protected Location[] collector_locations;
+	
+	@Belief
+	protected Location[] container_locations;
 
 	@Belief
 	protected Environment env;
@@ -47,22 +51,24 @@ public class CityBDI {
 	public void body() {
 		env = new Environment(agent.getExternalAccess());
 		GCollector.getInstance().setEnv(env);
+		GContainer.getInstance().setEnv(env);
 		agent.dispatchTopLevelGoal(new PerformMapUpdate()).get();
 	}
 
 	public void updateMap() {
+		container_locations = GContainer.getInstance().getAgentlocations();
 		// get Agent new Locations
-		Location[] agentLocations_new = GCollector.getInstance().getAgentlocations();
+		Location[] collectorLocations_new = GCollector.getInstance().getAgentlocations();
 		// clear previous location icons
-		if (agent_locations != null) {
-			for (int i = 0; i < agent_locations.length; i++) {
-				if (agentLocations_new[i].equals(agent_locations[i]))
+		if (collector_locations != null) {
+			for (int i = 0; i < collector_locations.length; i++) {
+				if (collectorLocations_new[i].equals(collector_locations[i]))
 					// means location of agent was not updated since last time
 					// this will fix the blinking agent bug
 					continue;
-				env.getCitySpacebyLocation(agent_locations[i]).collector = false;
+				env.getCitySpacebyLocation(collector_locations[i]).collector = false;
 				try {
-					env.getCitySpacebyLocation(agent_locations[i]).updateImage();
+					env.getCitySpacebyLocation(collector_locations[i]).updateImage();
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -73,11 +79,11 @@ public class CityBDI {
 			}
 		}
 
-		// draw agents on map
-		for (int i = 0; i < agentLocations_new.length; i++) {
-			env.getCitySpacebyLocation(agentLocations_new[i]).collector = true;
+		// draw collector agents on map
+		for (int i = 0; i < collectorLocations_new.length; i++) {
+			env.getCitySpacebyLocation(collectorLocations_new[i]).collector = true;
 			try {
-				env.getCitySpacebyLocation(agentLocations_new[i]).updateImage();
+				env.getCitySpacebyLocation(collectorLocations_new[i]).updateImage();
 			} catch (IOException e) {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
@@ -86,8 +92,22 @@ public class CityBDI {
 				}
 			}
 		}
-		agent_locations = new Location[agentLocations_new.length];
-		System.arraycopy(agentLocations_new, 0, agent_locations, 0, agent_locations.length);
+		
+		// draw container agents on map
+		for (int i = 0; i < container_locations.length; i++) {
+			env.getCitySpacebyLocation(container_locations[i]).container = true;
+			try {
+				env.getCitySpacebyLocation(container_locations[i]).updateImage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				if (GContainer.verbose) {
+					System.err.println("ERROR: The specified image was not found!");
+				}
+			}
+		}
+		
+		collector_locations = new Location[collectorLocations_new.length];
+		System.arraycopy(collectorLocations_new, 0, collector_locations, 0, collector_locations.length);
 	}
 
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
@@ -100,6 +120,5 @@ public class CityBDI {
 		public boolean checkContext() {
 			return !pause;
 		}
-
 	}
 }

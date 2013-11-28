@@ -1,7 +1,6 @@
 package cityGarbageCollector;
 
 import java.util.ArrayList;
-
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.gui.Environment;
 

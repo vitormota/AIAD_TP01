@@ -82,7 +82,7 @@ public class City extends JPanel {
 		/**
 		 * Flags for objects on this space
 		 */
-		public boolean collector = false, burner = false, waste = false;
+		public boolean collector = false, burner = false, container = false;
 
 		public Gridpanel(int x, int y) {
 			// TODO Auto-generated constructor stub
@@ -95,13 +95,13 @@ public class City extends JPanel {
 		public void updateImage() throws IOException {
 			if (collector) {
 				setIcon(new ImageIcon(ImageIO.read(new File("images/collector.png"))));
-
 				return;
 			}
 			if (burner) {
 				return;
 			}
-			if (waste) {
+			if (container) {
+				setIcon(new ImageIcon(ImageIO.read(new File("images/garbage.png"))));
 				return;
 			}
 			// if none, then put background back

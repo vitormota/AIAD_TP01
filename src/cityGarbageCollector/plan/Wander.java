@@ -23,7 +23,7 @@ public class Wander {
 	 */
 	public Wander()
 	{
-		System.out.println("created: " + this);
+		//System.out.println("created: " + this);
 	}
 
 	// -------- methods --------
@@ -34,6 +34,7 @@ public class Wander {
 	 */
 	@PlanBody
 	public void body() throws InterruptedException{
+		System.out.println("at wander planbody");
 		collector.updatePosition();
 	}
 
