@@ -5,6 +5,7 @@ import jadex.bdiv3.annotation.PlanAPI;
 import jadex.bdiv3.annotation.PlanBody;
 import jadex.bdiv3.annotation.PlanCapability;
 import jadex.bdiv3.runtime.IPlan;
+import cityGarbageCollector.GCollector;
 import cityGarbageCollector.agent.CityBDI;
 
 @Plan
@@ -31,7 +32,7 @@ public class MapUpdate {
 	@PlanBody
 	public void body() throws InterruptedException{
 		city.updateMap();
-		Thread.sleep(100);
+		Thread.sleep((long) (CityBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
 	}
 	
 }

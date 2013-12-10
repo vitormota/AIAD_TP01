@@ -4,6 +4,8 @@ import jadex.bridge.IExternalAccess;
 import jadex.commons.gui.SGUI;
 
 import java.awt.BorderLayout;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.FileNotFoundException;
 import java.util.LinkedList;
 
@@ -25,6 +27,8 @@ public class Environment extends JFrame{
 	 * City panel 
 	 */
 	private City city;
+	private AgentOptions southPanel;
+	private GlobalOptions eastPanel;
 	
 	/**
 	 *  ONLY FOR TESTING
@@ -35,14 +39,29 @@ public class Environment extends JFrame{
 		city = new City("maps/roadmap_1.map");
 		city.drawGrid();
 		city.drawMap();
+		southPanel = new AgentOptions();
+		eastPanel = new GlobalOptions();
 		getContentPane().add(city,BorderLayout.CENTER);
+		getContentPane().add(southPanel,BorderLayout.SOUTH);
+		getContentPane().add(eastPanel,BorderLayout.EAST);
 		setSize(600, 600);
 		setLocation(SGUI.calculateMiddlePosition(Environment.this));
 		setVisible(true);
+		setTitle("FEUP - 2013/2014 - AIAD: City Garbage Collector");
+		
+		pack();
 	}
 	
 	public int getCityWidth(){
 		return city.getSize_w();
+	}
+	
+	public void setAgentPosTextFields(int x, int y){
+		southPanel.setAgentLocation(x, y);
+	}
+	
+	public void setModifyPosTextFields(int x,int y){
+		eastPanel.setModifyLocation(x,y);
 	}
 	
 	public int getCityHeight(){
@@ -55,6 +74,10 @@ public class Environment extends JFrame{
 	
 	public LinkedList<Location> getAgentTrip(Location loc){
 		return city.getAgentTrip(loc);
+	}
+
+	public LinkedList<Location> getAgentTrip(Location pos, Location dest) {
+		return city.getAgentTrip(pos,dest);
 	}
 
 }

@@ -3,10 +3,17 @@ package cityGarbageCollector;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.Queue;
 import java.util.Scanner;
+import java.util.Set;
 import java.util.Stack;
+
+import com.sun.corba.se.impl.orbutil.graph.Node;
 
 /**
  * Map of roads, graph and operations
@@ -70,13 +77,13 @@ public class RoadMap {
 		for (int i = 0; i < res.length; i++) {
 			e = edges.get(i);
 			turn = isTurn(getVertexByLocation(edges.get(i).getSourceLocation()));
-			if(e.getSourceLocation().x < e.getDestLocation().x){
+			if (e.getSourceLocation().x < e.getDestLocation().x) {
 				dir = Direction.EAST;
-			}else if(e.getSourceLocation().x > e.getDestLocation().x){
+			} else if (e.getSourceLocation().x > e.getDestLocation().x) {
 				dir = Direction.WEST;
-			}else if(e.getSourceLocation().y > e.getDestLocation().y){
+			} else if (e.getSourceLocation().y > e.getDestLocation().y) {
 				dir = Direction.NORTH;
-			}else{
+			} else {
 				dir = Direction.SOUTH;
 			}
 			loc = edges.get(i).getSourceLocation();
@@ -245,6 +252,56 @@ public class RoadMap {
 		return res;
 	}
 
+	private Map<Vertex, Boolean> vis = new HashMap<Vertex, Boolean>();
+
+	private Map<Vertex, Vertex> prev = new HashMap<Vertex, Vertex>();
+
+	/**
+	 * Returns a list of vertices that specify the route to travel from start to
+	 * dest
+	 * 
+	 * @param source
+	 *            starting point
+	 * @param destination
+	 *            destination
+	 * @return a list of vertices
+	 */
+	public List<Vertex> getDirections(Location start, Location dest) {
+		List<Vertex> directions = new LinkedList<>();
+		Queue<Vertex> q = new LinkedList<Vertex>();
+		Vertex finish = getVertexByLocation(dest);
+		Vertex current = getVertexByLocation(start);
+		q.add(current);
+		vis.put(current, true);
+		while (!q.isEmpty()) {
+			current = (Vertex) q.remove();
+			if (current.equals(finish)) {
+				break;
+			} else {
+				for (Vertex node : current.getOutNodes()) {
+					if (!vis.containsKey(node)) {
+						q.add(node);
+						vis.put(node, true);
+						prev.put(node, current);
+					}
+				}
+			}
+		}
+		if (!current.equals(finish)) {
+			System.out.println("can't reach destination");
+		}
+		for (Vertex node = finish; node != null; node = prev.get(node)) {
+			directions.add(node);
+		}
+		// directions.reverse();
+		List<Vertex> res = new LinkedList<>();
+		for (int i = directions.size() - 1; i >= 0; i--) {
+			res.add(directions.get(i));
+		}
+
+		return res;
+	}
+
 	private boolean allVisited(LinkedList<Vertex> list) {
 		// TODO Auto-generated method stub
 		return list.containsAll(vertices);
@@ -315,9 +372,9 @@ public class RoadMap {
 	}
 
 	public enum Direction {
-		NORTH,SOUTH,EAST,WEST
+		NORTH, SOUTH, EAST, WEST
 	};
-	
+
 	public class Road {
 		public boolean turn;
 		public Direction direction;

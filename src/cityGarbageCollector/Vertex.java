@@ -1,6 +1,7 @@
 package cityGarbageCollector;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import java.util.List;
 
 public class Vertex {
@@ -76,6 +77,15 @@ public class Vertex {
 	public Location copyLocation() {
 		// TODO Auto-generated method stub
 		return position.clone();
+	}
+
+	public List<Vertex>getOutNodes() {
+		// TODO Auto-generated method stub
+		LinkedList<Vertex> res = new LinkedList<>();
+		for(Edge e : getEdges()){
+			res.add(e.getTo());
+		}
+		return res;
 	}
 
 }

@@ -44,6 +44,9 @@ public class CityBDI {
 
 	@Belief
 	protected boolean pause = false;
+	
+	@Belief
+	public static final long SLEEP_MILLIS = 100;
 
 	/**
 	 * The agent body

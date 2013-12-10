@@ -1,6 +1,5 @@
 package cityGarbageCollector.gui;
 
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.MouseEvent;
@@ -13,14 +12,12 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 
 import util.custom.StretchIcon;
-import cityGarbageCollector.Edge;
+import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.RoadMap;
 import cityGarbageCollector.RoadMap.Direction;
@@ -85,6 +82,15 @@ public class City extends JPanel {
 
 	public LinkedList<Location> getAgentTrip(Location loc) {
 		LinkedList<Vertex> verts = map.getAgentCircuit(map.getVertexByLocation(loc));
+		LinkedList<Location> res = new LinkedList<>();
+		for (Vertex v : verts) {
+			res.add(v.copyLocation());
+		}
+		return res;
+	}
+	
+	public LinkedList<Location> getAgentTrip(Location pos, Location dest) {
+		LinkedList<Vertex> verts = (LinkedList<Vertex>) map.getDirections(pos,dest);
 		LinkedList<Location> res = new LinkedList<>();
 		for (Vertex v : verts) {
 			res.add(v.copyLocation());
@@ -167,8 +173,8 @@ public class City extends JPanel {
 
 		public void updateImage() throws IOException {
 			if (collector) {
+				setText("Agent");
 				setIcon(new StretchIcon(ImageIO.read(new File("images/collector_on_road.png")),false));
-
 				return;
 			}
 			if (burner) {
@@ -224,7 +230,10 @@ public class City extends JPanel {
 				lastSelected.setBorder(null);
 			}
 			setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
-
+			GCollector.getInstance().getEnv().setAgentPosTextFields(x, y);
+			GCollector.getInstance().getEnv().setModifyPosTextFields(x, y);
+			
+			
 			lastSelected = (JLabel) e.getComponent();
 		}
 
@@ -252,5 +261,9 @@ public class City extends JPanel {
 
 		}
 	}
+
+	
+
+	
 
 }
