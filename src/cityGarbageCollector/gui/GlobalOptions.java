@@ -13,6 +13,7 @@ import javax.swing.JPanel;
 import javax.swing.KeyStroke;
 
 import cityGarbageCollector.GCollector;
+import cityGarbageCollector.RoadMap.Road_Type;
 
 public class GlobalOptions extends JPanel {
 
@@ -73,7 +74,7 @@ public class GlobalOptions extends JPanel {
 
 		jPanel6.setLayout(new java.awt.GridBagLayout());
 
-		cb_global_speed.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+		cb_global_speed.setModel(new javax.swing.DefaultComboBoxModel(Road_Type.values()));
 		gridBagConstraints = new java.awt.GridBagConstraints();
 		gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
 		jPanel6.add(cb_global_speed, gridBagConstraints);
@@ -115,7 +116,7 @@ public class GlobalOptions extends JPanel {
 
 		jPanel2.setLayout(new java.awt.GridLayout(1, 2));
 
-		cb_modify.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+		cb_modify.setModel(new javax.swing.DefaultComboBoxModel(Road_Type.values()));
 		jPanel5.add(cb_modify);
 
 		jPanel2.add(jPanel5);
@@ -135,13 +136,12 @@ public class GlobalOptions extends JPanel {
 
 		pauseListener = pauseAction();
 		cb_pause.addActionListener(pauseListener);
-		
+
 		speedListener = changeSpeedAction();
 		cb_global_speed.addActionListener(speedListener);
 
 		modMapBtListener = mapModifyButtonClickAction();
-		this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0),
-				"paintAction");
+		this.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke(KeyEvent.VK_S, 0), "paintAction");
 		this.getActionMap().put("paintAction", modifyMapAction);
 
 		// bt_global_modify.setMnemonic(KeyEvent.VK_S);
@@ -170,7 +170,10 @@ public class GlobalOptions extends JPanel {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
-				System.out.println("Still unimplemented");
+				int x = Integer.parseInt(tf_modify_map_x.getText());
+				int y = Integer.parseInt(tf_modify_map_y.getText());
+				Road_Type type = (Road_Type) cb_modify.getSelectedItem();
+				GCollector.getInstance().modifyMap(type,x,y);
 			}
 		};
 	}
@@ -187,11 +190,11 @@ public class GlobalOptions extends JPanel {
 			}
 		};
 	}
-	
+
 	private ActionListener pauseAction() {
 		// TODO Auto-generated method stub
 		return new ActionListener() {
-			
+
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub

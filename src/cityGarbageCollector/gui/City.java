@@ -2,6 +2,7 @@ package cityGarbageCollector.gui;
 
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.List;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -17,11 +18,13 @@ import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
 
 import util.custom.StretchIcon;
+import cityGarbageCollector.Edge;
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.RoadMap;
 import cityGarbageCollector.RoadMap.Direction;
 import cityGarbageCollector.RoadMap.Road;
+import cityGarbageCollector.RoadMap.Road_Type;
 import cityGarbageCollector.Vertex;
 
 public class City extends JPanel {
@@ -81,16 +84,8 @@ public class City extends JPanel {
 	}
 
 	public LinkedList<Location> getAgentTrip(Location loc) {
-		LinkedList<Vertex> verts = map.getAgentCircuit(map.getVertexByLocation(loc));
-		LinkedList<Location> res = new LinkedList<>();
-		for (Vertex v : verts) {
-			res.add(v.copyLocation());
-		}
-		return res;
-	}
-	
-	public LinkedList<Location> getAgentTrip(Location pos, Location dest) {
-		LinkedList<Vertex> verts = (LinkedList<Vertex>) map.getDirections(pos,dest);
+		LinkedList<Vertex> verts = (LinkedList<Vertex>) map.getAgentCircuit(map.getVertexByLocation(loc));
+		//LinkedList<Vertex> verts = map.getAgentCircuit(map.getVertexByLocation(loc));
 		LinkedList<Location> res = new LinkedList<>();
 		for (Vertex v : verts) {
 			res.add(v.copyLocation());
@@ -98,14 +93,117 @@ public class City extends JPanel {
 		return res;
 	}
 
+	public LinkedList<Location> getAgentTrip(Location pos, Location dest) {
+		LinkedList<Vertex> verts = (LinkedList<Vertex>) map.getDirections(pos, dest);
+		LinkedList<Location> res = new LinkedList<>();
+		for (Vertex v : verts) {
+			res.add(v.copyLocation());
+		}
+		return res;
+	}
+
+	public void modifyMap(Road_Type type, int x, int y) {
+		Gridpanel up = city_squares[y-1][x], down = city_squares[y+1][x], right = city_squares[y][x+1], left = city_squares[y][x-1];
+		Vertex v = new Vertex(new Location(x, y));
+		map.addVertice(v);
+		Vertex side;
+		switch (type) {
+		case One_West:
+			city_squares[y][x].oneway_road_west = true;
+			if (up.oneway_road_south || up.twoway_road_vert) {
+				addConnection(v, map.getVertexByLocation(up.toLoc()), up.twoway_road_vert);
+			} else if (up.oneway_road_north) {
+				addConnection(map.getVertexByLocation(up.toLoc()), v, false);
+			}
+			if (down.oneway_road_north || down.twoway_road_vert) {
+				addConnection(v, map.getVertexByLocation(down.toLoc()), down.twoway_road_vert);
+			} else if (down.oneway_road_south) {
+				addConnection(map.getVertexByLocation(down.toLoc()), v, false);
+			}
+			if (right.hasRoad() && !right.oneway_road_east) {
+				addConnection(v, map.getVertexByLocation(right.toLoc()), false);
+			}
+			addConnection(map.getVertexByLocation(left.toLoc()), v, false);
+			break;
+		case One_North:
+			city_squares[y][x].oneway_road_north = true;
+			addConnection(map.getVertexByLocation(up.toLoc()), v, false);
+			if (!down.oneway_road_south) {
+				addConnection(v, map.getVertexByLocation(down.toLoc()), false);
+			}
+			if (right.oneway_road_west || right.twoway_road) {
+				addConnection(v, map.getVertexByLocation(right.toLoc()), right.twoway_road);
+			}
+			if (left.oneway_road_east || left.twoway_road) {
+				addConnection(v, map.getVertexByLocation(left.toLoc()), left.twoway_road);
+			}
+			break;
+		case One_South:
+			city_squares[y][x].oneway_road_south = true;
+			if (!up.oneway_road_north) {
+				addConnection(v, map.getVertexByLocation(up.toLoc()), false);
+			}
+			addConnection(map.getVertexByLocation(down.toLoc()), v, false);
+			if (right.oneway_road_west || right.twoway_road) {
+				addConnection(v, map.getVertexByLocation(right.toLoc()), right.twoway_road);
+			}
+			if (left.oneway_road_east || left.twoway_road) {
+				addConnection(v, map.getVertexByLocation(left.toLoc()), left.twoway_road);
+			}
+			break;
+		case One_East:
+			city_squares[y][x].oneway_road_east = true;
+			if (up.oneway_road_south || up.twoway_road_vert) {
+				addConnection(v, map.getVertexByLocation(up.toLoc()), up.twoway_road_vert);
+			} else if (up.oneway_road_north) {
+				addConnection(map.getVertexByLocation(up.toLoc()), v, false);
+			}
+			if (down.oneway_road_north || down.twoway_road_vert) {
+				addConnection(v, map.getVertexByLocation(down.toLoc()), down.twoway_road_vert);
+			} else if (down.oneway_road_south) {
+				addConnection(map.getVertexByLocation(down.toLoc()), v, false);
+			}
+			addConnection(map.getVertexByLocation(right.toLoc()), v, left.twoway_road);
+			if (left.hasRoad() && !left.oneway_road_west) {
+				addConnection(v, map.getVertexByLocation(left.toLoc()), false);
+			}
+			break;
+		case Two_hor:
+			city_squares[y][x].twoway_road = true;
+			break;
+		case Two_vert:
+			city_squares[y][x].twoway_road_vert = true;
+			break;
+		default:
+			break;
+		}
+
+		try {
+			city_squares[y][x].updateImage();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+
+		// map.append(type,x,y);
+	}
+
+	private void addConnection(Vertex v, Vertex v1, boolean twoway_road) {
+		// TODO Auto-generated method stub
+		if(v == null || v1 == null) return;
+		v1.addEdge(new Edge(v1, v));
+		if (twoway_road)
+			v1.addEdge(new Edge(v, v1));
+	}
+
 	/**
 	 * version 0.1 draw a simple grid
 	 */
 	public void drawGrid() {
-		setLayout(new GridLayout(getSize_h(), getSize_w()));
+		setLayout(new GridLayout(getSize_w(), getSize_h()));
 		for (int i = 0; i < getSize_h(); i++) {
 			for (int j = 0; j < getSize_w(); j++) {
-				city_squares[i][j] = new Gridpanel(i, j);
+				city_squares[i][j] = new Gridpanel(j, i);
 				add(city_squares[i][j]);
 			}
 		}
@@ -156,6 +254,7 @@ public class City extends JPanel {
 	public class Gridpanel extends JLabel implements MouseListener {
 		public int x, y;
 		public Image img;
+
 		/**
 		 * Flags for objects on this space
 		 */
@@ -171,10 +270,17 @@ public class City extends JPanel {
 			addMouseListener(this);
 		}
 
+		public Location toLoc() {
+			return new Location(x, y);
+		}
+
+		public boolean hasRoad() {
+			return (oneway_road_east || oneway_road_vert || oneway_road || oneway_road_north || oneway_road_south || oneway_road_west || twoway_road || twoway_road_vert);
+		}
+
 		public void updateImage() throws IOException {
 			if (collector) {
-				setText("Agent");
-				setIcon(new StretchIcon(ImageIO.read(new File("images/collector_on_road.png")),false));
+				setIcon(new StretchIcon(ImageIO.read(new File("images/collector_on_road.png")), false));
 				return;
 			}
 			if (burner) {
@@ -232,8 +338,7 @@ public class City extends JPanel {
 			setBorder(BorderFactory.createBevelBorder(BevelBorder.RAISED));
 			GCollector.getInstance().getEnv().setAgentPosTextFields(x, y);
 			GCollector.getInstance().getEnv().setModifyPosTextFields(x, y);
-			
-			
+
 			lastSelected = (JLabel) e.getComponent();
 		}
 
@@ -261,9 +366,5 @@ public class City extends JPanel {
 
 		}
 	}
-
-	
-
-	
 
 }

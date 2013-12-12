@@ -12,6 +12,12 @@ import jadex.bdiv3.annotation.GoalContextCondition;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Plans;
 import jadex.bdiv3.annotation.Trigger;
+import jadex.bridge.IComponentIdentifier;
+import jadex.bridge.service.IServiceProvider;
+import jadex.bridge.service.RequiredServiceInfo;
+import jadex.bridge.service.search.SServiceProvider;
+import jadex.bridge.service.types.cms.IComponentManagementService;
+import jadex.commons.future.ThreadSuspendable;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import cityGarbageCollector.GCollector;
@@ -61,6 +67,16 @@ public class CityBDI {
 		}
 		GCollector.getInstance().setEnv(env);
 		GContainer.getInstance().setEnv(env);
+		
+		
+//		System.out.println("Reacheonmçldfvk");
+//		
+//		ThreadSuspendable sus = new ThreadSuspendable();
+//		IComponentManagementService is = SServiceProvider.getService(agent.getServiceProvider(),IComponentManagementService.class,RequiredServiceInfo.SCOPE_PLATFORM).get(sus);
+//		
+//		IComponentIdentifier hw = is.createComponent("CollectorBDI.class", null).getFirstResult(sus);
+//		System.out.println("Done!!!");
+		
 		agent.dispatchTopLevelGoal(new PerformMapUpdate()).get();
 	}
 

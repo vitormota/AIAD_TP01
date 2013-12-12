@@ -1,29 +1,23 @@
 package cityGarbageCollector.agent;
 
-import java.util.LinkedList;
-
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
 import jadex.bdiv3.annotation.Goal;
 import jadex.bdiv3.annotation.Goal.ExcludeMode;
 import jadex.bdiv3.annotation.GoalContextCondition;
-import jadex.bdiv3.annotation.GoalDropCondition;
-import jadex.bdiv3.annotation.GoalMaintainCondition;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Plans;
 import jadex.bdiv3.annotation.Trigger;
-import jadex.bridge.IComponentStep;
-import jadex.bridge.IInternalAccess;
-import jadex.commons.future.IFuture;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
+
+import java.util.LinkedList;
+
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
-import cityGarbageCollector.Vertex;
-import cityGarbageCollector.plan.GoTo;
 import cityGarbageCollector.plan.PickUpWastePlan;
 import cityGarbageCollector.plan.Wander;
 
@@ -34,6 +28,8 @@ public class CollectorBDI {
 
 	@Agent
 	protected BDIAgent agent;
+	
+	private String name;
 
 	@Belief
 	private int capacity;
@@ -42,7 +38,7 @@ public class CollectorBDI {
 	@Belief
 	private Location position;
 	@Belief
-	private boolean pause = false;
+	public boolean pause = false;
 	private LinkedList<Location> steps;
 
 	@Belief
@@ -50,7 +46,15 @@ public class CollectorBDI {
 
 	public int getRemainingCapacity() {
 		return capacity - actualWasteQuantity;
+		
 	}
+
+	
+//	public CollectorBDI(Location loc,int cap,String name){
+//		this.position = loc;
+//		this.capacity = cap;
+//		this.name = name;
+//	}
 
 	@AgentCreated
 	public void init() {

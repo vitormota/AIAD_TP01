@@ -1,9 +1,20 @@
 package cityGarbageCollector.gui;
 
+import jadex.bdiv3.BDIAgent;
+import jadex.bridge.service.BasicService;
+
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import cityGarbageCollector.GCollector;
+import cityGarbageCollector.Location;
+import cityGarbageCollector.agent.CollectorBDI;
+
 public class AgentOptions extends JPanel {
-	
+
 	public AgentOptions() {
 		// TODO Auto-generated constructor stub
 		initComponents();
@@ -31,7 +42,7 @@ public class AgentOptions extends JPanel {
 		bt_agent_deploy = new javax.swing.JButton();
 
 		setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
-		
+
 		jLabel1.setText("Name:");
 		add(jLabel1);
 
@@ -98,11 +109,15 @@ public class AgentOptions extends JPanel {
 		});
 		add(bt_agent_deploy);
 	}// </editor-fold>
-	
-	public void setAgentLocation(int x,int y){
-		this.tf_agent_x.setText(""+x);
-		this.tf_agent_y.setText(""+y);
+
+	public void setAgentLocation(int x, int y) {
+		this.tf_agent_x.setText("" + x);
+		this.tf_agent_y.setText("" + y);
 	}
+
+	// ================================================================================
+	// Actions && Listeners
+	// ================================================================================
 
 	private void tf_agent_nameActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
@@ -123,6 +138,16 @@ public class AgentOptions extends JPanel {
 	private void bt_agent_deployActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		// Deploy button action goes here
+		int x = Integer.parseInt(tf_agent_x.getText());
+		int y = Integer.parseInt(tf_agent_y.getText());
+		int cap = Integer.parseInt(tf_agent_cap.getText());
+		Location loc = new Location(x, y);
+//		CollectorBDI agent = new CollectorBDI(loc, cap, tf_agent_name.getText());
+//		if (GCollector.getInstance().isRoadOnLocation(loc)) {
+//			GCollector.getInstance().addAgent(agent);
+//		} else {
+//			JOptionPane.showMessageDialog(this, "Please insert agent on a Road.", "Bad location", JOptionPane.ERROR_MESSAGE);
+//		}
 	}
 
 	// Variables declaration - do not modify

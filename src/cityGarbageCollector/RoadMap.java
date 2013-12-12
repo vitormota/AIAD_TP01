@@ -3,6 +3,7 @@ package cityGarbageCollector;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -12,6 +13,8 @@ import java.util.Queue;
 import java.util.Scanner;
 import java.util.Set;
 import java.util.Stack;
+
+import cityGarbageCollector.RoadMap.Road_Type;
 
 import com.sun.corba.se.impl.orbutil.graph.Node;
 
@@ -28,6 +31,10 @@ public class RoadMap {
 	 * Default = false
 	 */
 	public static boolean verbose = true;
+
+	public static enum Road_Type {
+		Two_vert, Two_hor, One_South, One_North, One_East, One_West
+	};
 
 	public static final char COMMENT = '#';
 	public static final char SIZE = 's';
@@ -218,7 +225,7 @@ public class RoadMap {
 	 * 
 	 * @return a linked list containing to sequence of edges to be traveled
 	 */
-	public LinkedList<Vertex> getAgentCircuit(Vertex start) {
+	public LinkedList<Vertex> getAgentCircuitOld(Vertex start) {
 		LinkedList<Vertex> res = new LinkedList<>();
 		Stack<Edge> s = new Stack<>();
 		res.addLast(start);
@@ -252,8 +259,46 @@ public class RoadMap {
 		return res;
 	}
 
-	private Map<Vertex, Boolean> vis = new HashMap<Vertex, Boolean>();
+	public List<Vertex> getAgentCircuit(Vertex start) {
+		List<Vertex> found = new LinkedList<>();
+		List<Vertex> path = new LinkedList<>();
+		List<Vertex> children = new LinkedList<>();
+		Stack<Vertex> stack = new Stack<>();
+		Vertex v;
+		boolean new_vert;
+		found.add(start);
+		path.add(start);
+		do {
+			new_vert = false;
+			children = start.getOutNodes();
+			for (int i = 0; i < children.size(); i++) {
+				v = children.get(i);
+				if (i < children.size() - 1 && !found.contains(v)) {
+					// not last index
+					stack.push(v);
+				} else if (!found.contains(v)) {
+					// last index and not explored, expand
+					start = v;
+					found.add(v);
+					path.add(v);
+					new_vert = true;
+				}
+			}
+			if (!new_vert && stack.size() > 0) {
+				Vertex dest = stack.pop();
+				found.add(dest);
+				List<Vertex> list = getDirections(start.copyLocation(), dest.copyLocation());
+				list.remove(0);
+				path.addAll(list);
+				start = dest;
+			} else if(!new_vert && stack.size() == 0){
+				return path;
+			}
+		} while (found.size() < vertices.size());
+		return path;
+	}
 
+	private Map<Vertex, Boolean> vis = new HashMap<Vertex, Boolean>();
 	private Map<Vertex, Vertex> prev = new HashMap<Vertex, Vertex>();
 
 	/**
@@ -267,6 +312,8 @@ public class RoadMap {
 	 * @return a list of vertices
 	 */
 	public List<Vertex> getDirections(Location start, Location dest) {
+		vis = new HashMap<Vertex, Boolean>();
+		prev = new HashMap<Vertex, Vertex>();
 		List<Vertex> directions = new LinkedList<>();
 		Queue<Vertex> q = new LinkedList<Vertex>();
 		Vertex finish = getVertexByLocation(dest);
@@ -355,7 +402,7 @@ public class RoadMap {
 	 * @param vert
 	 *            the vertex to add
 	 */
-	private boolean addVertice(Vertex vert) {
+	public boolean addVertice(Vertex vert) {
 		for (int i = 0; i < vertices.size(); i++) {
 			if (vert.equals(vertices.get(i))) {
 				if (verbose) {

@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import cityGarbageCollector.RoadMap.Road_Type;
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.gui.Environment;
 
@@ -47,6 +48,10 @@ public class GCollector {
 		if (instance == null)
 			instance = new GCollector();
 		return instance;
+	}
+	
+	public boolean isRoadOnLocation(Location loc){
+		return env.getCitySpacebyLocation(loc).hasRoad();
 	}
 
 	public void addAgent(CollectorBDI agent) {
@@ -114,6 +119,12 @@ public class GCollector {
 		for(CollectorBDI c : agents){
 			c.togglePause();
 		}
+	}
+
+
+	public void modifyMap(Road_Type type, int x, int y) {
+		// TODO Auto-generated method stub
+		env.modifyMap(type, x,y);
 	}
 
 }

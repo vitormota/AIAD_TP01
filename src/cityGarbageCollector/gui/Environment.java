@@ -12,6 +12,7 @@ import java.util.LinkedList;
 import javax.swing.JFrame;
 
 import cityGarbageCollector.Location;
+import cityGarbageCollector.RoadMap.Road_Type;
 import cityGarbageCollector.gui.City.Gridpanel;
 
 /**
@@ -49,7 +50,8 @@ public class Environment extends JFrame{
 		setVisible(true);
 		setTitle("FEUP - 2013/2014 - AIAD: City Garbage Collector");
 		
-		pack();
+		//evil evil.... sometimes causes crashes on events of grid
+		//pack();
 	}
 	
 	public int getCityWidth(){
@@ -78,6 +80,11 @@ public class Environment extends JFrame{
 
 	public LinkedList<Location> getAgentTrip(Location pos, Location dest) {
 		return city.getAgentTrip(pos,dest);
+	}
+
+	public void modifyMap(Road_Type type, int x, int y) {
+		// TODO Auto-generated method stub
+		city.modifyMap(type, x, y);
 	}
 
 }
