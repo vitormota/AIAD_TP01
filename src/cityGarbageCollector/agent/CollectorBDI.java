@@ -30,24 +30,21 @@ import cityGarbageCollector.plan.PickUpWastePlan;
 import cityGarbageCollector.plan.Wander;
 
 @Agent
-@Plans(
-		{
-			@Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class)),
-			@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
-			@Plan(trigger = @Trigger(goals = CollectorBDI.GoToBurnerGoal.class), body = @Body(GoToBurnerPlan.class)),
-			@Plan(trigger = @Trigger(goals = CollectorBDI.DumpGoal.class), body = @Body(DumpWastePlan.class))
-		})
+@Plans({ @Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class)),
+		@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
+		@Plan(trigger = @Trigger(goals = CollectorBDI.GoToBurnerGoal.class), body = @Body(GoToBurnerPlan.class)),
+		@Plan(trigger = @Trigger(goals = CollectorBDI.DumpGoal.class), body = @Body(DumpWastePlan.class)) })
 public class CollectorBDI {
 
 	@Agent
 	protected BDIAgent agent;
-	
+
 	private String name;
 
 	@Belief
 	private int capacity;
 	@Belief
-	public boolean full=false;
+	public boolean full = false;
 	@Belief
 	private int actualWasteQuantity;
 	@Belief
@@ -59,27 +56,23 @@ public class CollectorBDI {
 	@Belief
 	public static final long SLEEP_MILLIS = 500;
 
-	public int getRemainingCapacity() {
-		return capacity - actualWasteQuantity;
-		
-	}
-
-	
 	@AgentCreated
 	public void init() {
 		position = new Location(0, 0);
 		steps = new LinkedList<>();
-		capacity=50;
-		actualWasteQuantity=0;
+		capacity = 50;
+		actualWasteQuantity = 0;
 		GCollector.getInstance().addCollectorAgent(this);
 	}
+	
+	
 
 	@AgentBody
 	public void body() {
 		agent.dispatchTopLevelGoal(new CheckContainer());
 		agent.dispatchTopLevelGoal(new PerformPatrol());
-		//agent.dispatchTopLevelGoal(new DumpGoal());
-		//System.out.println("agentbody");
+		// agent.dispatchTopLevelGoal(new DumpGoal());
+		// System.out.println("agentbody");
 	}
 
 	@AgentKilled
@@ -113,7 +106,7 @@ public class CollectorBDI {
 		 * Suspend the goal when on pause.
 		 */
 		@GoalContextCondition(rawevents = "pause")
-		public boolean checkContext(){
+		public boolean checkContext() {
 			return !pause;
 		}
 	}
@@ -121,91 +114,89 @@ public class CollectorBDI {
 	public void pickWaste(int quantity) {
 		actualWasteQuantity += quantity;
 	}
-
-	/**
-	 *  Create a new goal whenever full belief is changed.
-	 */
-	//@Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class, CheckContainer.class}))
-	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
-	public class checkContainer {
-		
-	}
 	
+	
+	/**
+	 * Create a new goal whenever full belief is changed.
+	 */
+	// @Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class,
+	// CheckContainer.class}))
+	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
+	public class CheckContainer {
+
+	}
+
 	@Goal
 	public class PickUpWaste {
-		
+
 	}
-	
-/**
-	 *  Create a new goal whenever full belief is changed.
+
+	/**
+	 * Create a new goal whenever full belief is changed.
 	 */
-	//@Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class, CheckContainer.class}))
+	// @Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class,
+	// CheckContainer.class}))
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class GoToBurnerGoal {
 
-		/**
-		 *  When the chargestate is below 0.2
-		 *  the cleaner will activate this goal.
-		 *
-		 *
-		@GoalMaintainCondition(rawevents="actualWasteQuantity")
-		public boolean checkMaintain()
-		{
-			return (actualWasteQuantity < 50);
-		}
-
-		 **
-		 *  The target condition determines when
-		 *  the goal goes back to idle. 
-		 *
-		@GoalTargetCondition(rawevents="actualWasteQuantity")
-		public boolean checkTarget()
-		{
-			return (actualWasteQuantity == 0);
-		}*/
-
+		// /**
+		// * When the chargestate is below 0.2
+		// * the cleaner will activate this goal.
+		// *
+		// */
+		// @GoalMaintainCondition(rawevents="actualWasteQuantity")
+		// public boolean checkMaintain()
+		// {
+		// return (actualWasteQuantity < 50);
+		// }
+		//
+		// /**
+		// * The target condition determines when
+		// * the goal goes back to idle.
+		// */
+		// @GoalTargetCondition(rawevents="actualWasteQuantity")
+		// public boolean checkTarget()
+		// {
+		// return (actualWasteQuantity == 0);
+		// }*/
 
 		protected boolean fullHere;
 
+		@GoalCreationCondition(rawevents = "full")
+		public GoToBurnerGoal(@Event("full") boolean fullH) {
+			fullHere = fullH;
+			System.out.println("AQUII " + fullHere);
 
-		@GoalCreationCondition(rawevents="full")
-		public GoToBurnerGoal(@Event("full") boolean fullH)
-		{
-			fullHere=fullH;
-			System.out.println("AQUII "+fullHere);
-			
-			//se full define os steps para o burner +proximo
-			if(full) { //SUFICIENTE??
+			// se full define os steps para o burner +proximo
+			if (full) { // SUFICIENTE??
 				Location loc = getNearestBurner();
 				goToLocation(loc);
 			}
 		}
 
-
 		/**
-		 *  The goal is achieved when the position
-		 *  of the cleaner is near to the target position.
-		 *
-		@GoalContextCondition(rawevents="full")
-		public boolean checkTarget()
-		{
-			System.out.println("checktarget");
-			return !full;
-		}*/
-
-
-		/**
-		 *  Drop the goal when collector is not full
+		 * The goal is achieved when the position
+		 * of the cleaner is near to the target position.
+		 * 
+		 * @GoalContextCondition(rawevents="full")
+		 *                                         public boolean checkTarget()
+		 *                                         {
+		 *                                         System.out.println(
+		 *                                         "checktarget");
+		 *                                         return !full;
+		 *                                         }
 		 */
-		@GoalDropCondition(rawevents="full")
-		public boolean checkDrop()
-		{
-			System.out.println("goaldrop "+fullHere);
+
+		/**
+		 * Drop the goal when collector is not full
+		 */
+		@GoalDropCondition(rawevents = "full")
+		public boolean checkDrop() {
+			System.out.println("goaldrop " + fullHere);
 			return !full;
-		} 
+		}
 
 	}
-
 
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class PerformPatrol {
@@ -214,12 +205,11 @@ public class CollectorBDI {
 		 * Suspend the goal when on pause.
 		 */
 		@GoalContextCondition(rawevents = "pause")
-		public boolean checkContext(){
+		public boolean checkContext() {
 			return (!pause && !full);
 		}
 
 	}
-
 
 	/**
 	 * 
@@ -231,7 +221,11 @@ public class CollectorBDI {
 	}
 
 	public int getRemainingCapacity() {
-		return capacity-actualWasteQuantity;
+		return capacity - actualWasteQuantity;
+	}
+	
+	public void togglePause() {
+		pause = !pause;
 	}
 
 	public int getActualWasteQuantity() {
@@ -239,22 +233,22 @@ public class CollectorBDI {
 	}
 
 	public void dump() {
-		actualWasteQuantity=0;
-		full=false;
+		actualWasteQuantity = 0;
+		full = false;
 	}
-	
+
 	public Location getNearestBurner() {
 		Location[] burnerlocations = GCollector.getInstance().getBurnerlocations();
-		int x=0;
+		int x = 0;
 		LinkedList<Location> tempSteps = GCollector.getInstance().getAgentTrip(position, burnerlocations[0]);
-		
-		for(int i=0; i<burnerlocations.length;i++) {
-			if(GCollector.getInstance().getAgentTrip(position, burnerlocations[i]).size() < tempSteps.size()) {
+
+		for (int i = 0; i < burnerlocations.length; i++) {
+			if (GCollector.getInstance().getAgentTrip(position, burnerlocations[i]).size() < tempSteps.size()) {
 				tempSteps = GCollector.getInstance().getAgentTrip(position, burnerlocations[i]);
-				x=i;
+				x = i;
 			}
 		}
-		
+
 		return burnerlocations[x];
 	}
 

@@ -2,7 +2,9 @@ package cityGarbageCollector;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
+import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import cityGarbageCollector.RoadMap.Road_Type;
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.agent.ContainerBDI;
 import cityGarbageCollector.agent.BurnerBDI;
@@ -165,7 +167,7 @@ public void setSpeed(SPEED s) {
 
 	public void toggleAgentPause() {
 		// TODO Auto-generated method stub
-		for(CollectorBDI c : agents){
+		for(CollectorBDI c : collector_agents){
 			c.togglePause();
 		}
 	}
