@@ -168,10 +168,10 @@ public class City extends JPanel {
 		public void updateImage() throws IOException {
 			if (collector) {
 				setIcon(new StretchIcon(ImageIO.read(new File("images/collector_on_road.png")),false));
-
 				return;
 			}
 			if (burner) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/burner.png")),false));
 				return;
 			}
 			if (container) {

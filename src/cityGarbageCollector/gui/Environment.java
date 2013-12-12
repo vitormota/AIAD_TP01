@@ -20,12 +20,12 @@ import cityGarbageCollector.gui.City.Gridpanel;
  *
  */
 public class Environment extends JFrame{
-	
+
 	/**
 	 * City panel 
 	 */
 	private City city;
-	
+
 	/**
 	 *  ONLY FOR TESTING
 	 * @throws FileNotFoundException 
@@ -40,21 +40,25 @@ public class Environment extends JFrame{
 		setLocation(SGUI.calculateMiddlePosition(Environment.this));
 		setVisible(true);
 	}
-	
+
 	public int getCityWidth(){
 		return city.getSize_w();
 	}
-	
+
 	public int getCityHeight(){
 		return city.getSize_h();
 	}
-	
+
 	public Gridpanel getCitySpacebyLocation(Location l){
 		return city.getSpaceByLocation(l);
 	}
-	
+
 	public LinkedList<Location> getAgentTrip(Location loc){
 		return city.getAgentTrip(loc);
+	}
+
+	public LinkedList<Location> getAgentTrip(Location pos, Location dest) {
+		return city.getAgentTrip(pos,dest);
 	}
 
 }

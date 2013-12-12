@@ -1,6 +1,6 @@
 package cityGarbageCollector.plan;
 
-import cityGarbageCollector.GContainer;
+import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.agent.ContainerBDI;
@@ -13,8 +13,6 @@ public class PickUpWastePlan {
 
 	@PlanCapability
 	private CollectorBDI collector;
-	
-	Location loc;
 
 	// -------- constructors --------
 
@@ -23,42 +21,54 @@ public class PickUpWastePlan {
 	 */
 	public PickUpWastePlan() {
 		//System.out.println("created: " + this);
-		loc = collector.getLocation();
 	}
 
 	// -------- methods --------
 
 
 	public void getWaste(ContainerBDI container) {
-		if(container.getWasteQuantity() <= collector.getRemainingCapacity()) {
-			container.decrementWaste(container.getWasteQuantity());
-			collector.pickWaste(container.getWasteQuantity());
-		}
-		else
-		{
-			
-		}
+		System.out.println("at getWaste");
+		int quantity=0;
+		System.out.println(collector.getRemainingCapacity());
+		System.out.println(container.getWasteQuantity());
+		
+		if(container.getWasteQuantity() < collector.getRemainingCapacity())
+			quantity=container.getWasteQuantity();
+		else 
+			quantity=collector.getRemainingCapacity();
+		
+		System.out.println("quantity:"+quantity);
+		container.decrementWaste(quantity);
+		collector.pickWaste(quantity);
+		System.out.println("Picked up: "+ quantity);
 	}
+
 	/**
 	 * The plan body.
 	 * @throws InterruptedException 
 	 */
 	@PlanBody
 	public void body() throws InterruptedException {
-		System.out.println("at CheckContainer planbody");
-		Location[] clocations = GContainer.getInstance().getAgentlocations();
+		System.out.println("at pickup planbody");
+		Location[] clocations = GCollector.getInstance().getContainerlocations();
+		Location loc = collector.getLocation();
 
 		for(int i=0; i<clocations.length;i++) {
+			boolean found=false;
 			if( (loc.x+1 == clocations[i].x) && (loc.y == clocations[i].y) )
-				System.out.println("Container Encontrado!");
+				found=true;
 			else if( (loc.x == clocations[i].x) && (loc.y+1 == clocations[i].y) )
-				System.out.println("Container Encontrado!");
+				found=true;
 			else if( (loc.x-1 == clocations[i].x) && (loc.y == clocations[i].y) )
-				System.out.println("Container Encontrado!");
+				found=true;
 			else if( (loc.x == clocations[i].x) && (loc.y-1 == clocations[i].y) )
-				System.out.println("Container Encontrado!");
-		}
-		
-	}
+				found=true;
 
+			if(found==true) {
+				System.out.println("Container Encontrado!");
+				ContainerBDI c = GCollector.getInstance().getContainerByLocation(clocations[i]);
+				getWaste(c);
+			}
+		}
+	}
 }

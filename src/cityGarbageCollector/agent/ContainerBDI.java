@@ -1,6 +1,6 @@
 package cityGarbageCollector.agent;
 
-import cityGarbageCollector.GContainer;
+import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.plan.CreateWaste;
 import jadex.bdiv3.BDIAgent;
@@ -33,7 +33,7 @@ public class ContainerBDI {
 	@Belief
 	private boolean pause = false;
 	@Belief
-	private int wasteQuantity=0;
+	private int wasteQuantity;
 
 	public int getWasteQuantity() {
 		return wasteQuantity;
@@ -41,8 +41,9 @@ public class ContainerBDI {
 
 	@AgentCreated
 	public void init() {
-		position = new Location(2,1);
-		GContainer.getInstance().addAgent(this);
+		position = new Location(1,0);
+		wasteQuantity=60;
+		GCollector.getInstance().addContainerAgent(this);
 	}
 
 	@AgentBody
