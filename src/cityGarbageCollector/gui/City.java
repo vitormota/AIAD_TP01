@@ -1,5 +1,6 @@
 package cityGarbageCollector.gui;
 
+import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.List;
@@ -13,9 +14,11 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
+import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.border.BevelBorder;
+import javax.swing.border.Border;
 
 import util.custom.StretchIcon;
 import cityGarbageCollector.Edge;
@@ -284,6 +287,7 @@ public class City extends JPanel {
 				return;
 			}
 			if (burner) {
+				setIcon(new StretchIcon(ImageIO.read(new File("images/burner.png")),false));
 				return;
 			}
 			if (container) {

@@ -2,10 +2,10 @@ package cityGarbageCollector;
 
 import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import cityGarbageCollector.RoadMap.Road_Type;
 import cityGarbageCollector.agent.CollectorBDI;
+import cityGarbageCollector.agent.ContainerBDI;
+import cityGarbageCollector.agent.BurnerBDI;
 import cityGarbageCollector.gui.Environment;
 
 /**
@@ -38,10 +38,15 @@ public class GCollector {
 
 	private Environment env = null;
 
-	private ArrayList<CollectorBDI> agents;
+	private ArrayList<CollectorBDI> collector_agents;
+	private ArrayList<ContainerBDI> container_agents;
+	private ArrayList<BurnerBDI> burner_agents;
+	
 
 	protected GCollector() {
-		agents = new ArrayList<>();
+		collector_agents = new ArrayList<>();
+		container_agents = new ArrayList<>();
+		burner_agents = new ArrayList<>();
 	}
 
 	public static GCollector getInstance() {
@@ -54,20 +59,37 @@ public class GCollector {
 		return env.getCitySpacebyLocation(loc).hasRoad();
 	}
 
-	public void addAgent(CollectorBDI agent) {
-		agents.add(agent);
+	public void addCollectorAgent(CollectorBDI agent) {
+		collector_agents.add(agent);
+	}
+	
+	public void addContainerAgent(ContainerBDI agent) {
+		container_agents.add(agent);
+	}
+	
+	public void addBurnerAgent(BurnerBDI burner) {
+		burner_agents.add(burner);
 	}
 
-	public Location[] getAgentlocations() {
-		Location[] res = new Location[agents.size()];
+	public Location[] getCollectorlocations() {
+		Location[] res = new Location[collector_agents.size()];
 		int i = 0;
-		for (CollectorBDI cl : agents) {
+		for (CollectorBDI cl : collector_agents) {
 			res[i++] = cl.getLocation();
 		}
 		return res;
 	}
 
-	public void setSpeed(SPEED s) {
+	public Location[] getContainerlocations() {
+		Location[] res = new Location[container_agents.size()];
+		int i = 0;
+		for (ContainerBDI cl : container_agents) {
+			res[i++] = cl.getLocation();
+		}
+		return res;
+	}
+
+public void setSpeed(SPEED s) {
 		try {
 			lock.writeLock().lock();
 			speed = s.speed;
@@ -85,6 +107,33 @@ public class GCollector {
 		} finally {
 			lock.readLock().unlock();
 		}
+	}
+	
+	
+	
+	public Location[] getBurnerlocations() {
+		Location[] res = new Location[burner_agents.size()];
+		int i = 0;
+		for (BurnerBDI bl : burner_agents) {
+			res[i++] = bl.getLocation();
+		}
+		return res;
+	}
+	
+	public ContainerBDI getContainerByLocation(Location loc) {
+		for (ContainerBDI c : container_agents) {
+			if(c.getLocation().equals(loc))
+				return c;
+		}
+		return null;
+	}
+	
+	public BurnerBDI getBurnerByLocation(Location loc) {
+		for (BurnerBDI b : burner_agents) {
+			if(b.getLocation().equals(loc))
+				return b;
+		}
+		return null;
 	}
 
 	/**

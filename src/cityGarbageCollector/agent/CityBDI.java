@@ -21,7 +21,6 @@ import jadex.commons.future.ThreadSuspendable;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import cityGarbageCollector.GCollector;
-import cityGarbageCollector.GContainer;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.gui.Environment;
 import cityGarbageCollector.plan.MapUpdate;
@@ -44,6 +43,9 @@ public class CityBDI {
 	
 	@Belief
 	protected Location[] container_locations;
+	
+	@Belief
+	protected Location[] burner_locations;
 
 	@Belief
 	protected Environment env;
@@ -66,24 +68,16 @@ public class CityBDI {
 			e.printStackTrace();
 		}
 		GCollector.getInstance().setEnv(env);
-		GContainer.getInstance().setEnv(env);
-		
-		
-//		System.out.println("Reacheonmçldfvk");
-//		
-//		ThreadSuspendable sus = new ThreadSuspendable();
-//		IComponentManagementService is = SServiceProvider.getService(agent.getServiceProvider(),IComponentManagementService.class,RequiredServiceInfo.SCOPE_PLATFORM).get(sus);
-//		
-//		IComponentIdentifier hw = is.createComponent("CollectorBDI.class", null).getFirstResult(sus);
-//		System.out.println("Done!!!");
-		
 		agent.dispatchTopLevelGoal(new PerformMapUpdate()).get();
 	}
 
 	public void updateMap() {
-		container_locations = GContainer.getInstance().getAgentlocations();
+		container_locations = GCollector.getInstance().getContainerlocations();
+		burner_locations = GCollector.getInstance().getBurnerlocations();
+		
+		
 		// get Agent new Locations
-		Location[] collectorLocations_new = GCollector.getInstance().getAgentlocations();
+		Location[] collectorLocations_new = GCollector.getInstance().getCollectorlocations();
 		// clear previous location icons
 		if (collector_locations != null) {
 			for (int i = 0; i < collector_locations.length; i++) {
@@ -125,7 +119,20 @@ public class CityBDI {
 				env.getCitySpacebyLocation(container_locations[i]).updateImage();
 			} catch (IOException e) {
 				e.printStackTrace();
-				if (GContainer.verbose) {
+				if (GCollector.verbose) {
+					System.err.println("ERROR: The specified image was not found!");
+				}
+			}
+		}
+		
+		// draw burner agents on map
+		for (int i = 0; i < burner_locations.length; i++) {
+			env.getCitySpacebyLocation(burner_locations[i]).burner = true;
+			try {
+				env.getCitySpacebyLocation(burner_locations[i]).updateImage();
+			} catch (IOException e) {
+				e.printStackTrace();
+				if (GCollector.verbose) {
 					System.err.println("ERROR: The specified image was not found!");
 				}
 			}

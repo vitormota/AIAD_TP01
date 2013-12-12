@@ -1,21 +1,21 @@
 package cityGarbageCollector.agent;
 
+import cityGarbageCollector.GCollector;
+import cityGarbageCollector.Location;
+import cityGarbageCollector.plan.CreateWaste;
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
 import jadex.bdiv3.annotation.Goal;
-import jadex.bdiv3.annotation.Goal.ExcludeMode;
 import jadex.bdiv3.annotation.GoalContextCondition;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Plans;
 import jadex.bdiv3.annotation.Trigger;
+import jadex.bdiv3.annotation.Goal.ExcludeMode;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
-import cityGarbageCollector.GContainer;
-import cityGarbageCollector.Location;
-import cityGarbageCollector.plan.CreateWaste;
 
 
 @Agent
@@ -33,7 +33,7 @@ public class ContainerBDI {
 	@Belief
 	private boolean pause = false;
 	@Belief
-	private int wasteQuantity=0;
+	private int wasteQuantity;
 
 	public int getWasteQuantity() {
 		return wasteQuantity;
@@ -41,8 +41,9 @@ public class ContainerBDI {
 
 	@AgentCreated
 	public void init() {
-		position = new Location(2,1);
-		GContainer.getInstance().addAgent(this);
+		position = new Location(1,0);
+		wasteQuantity=60;
+		GCollector.getInstance().addContainerAgent(this);
 	}
 
 	@AgentBody
