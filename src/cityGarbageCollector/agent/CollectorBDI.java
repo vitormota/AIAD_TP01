@@ -93,6 +93,8 @@ public static enum Trash_Type{
 		GCollector.getInstance().addCollectorAgent(this);
 	}
 	
+	
+
 	@AgentBody
 	public void body() {
 		agent.dispatchTopLevelGoal(new CheckContainer());
@@ -268,7 +270,7 @@ public static enum Trash_Type{
 	public int getRemainingCapacity() {
 		return capacity - actualWasteQuantity;
 	}
-
+	
 	public void togglePause() {
 		pause = !pause;
 	}
