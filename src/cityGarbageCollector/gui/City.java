@@ -175,12 +175,12 @@ public class City extends JPanel {
 				addConnection(v, map.getVertexByLocation(left.toLoc()), false);
 			}
 			break;
-		case Two_hor:
-			city_squares[y][x].twoway_road = true;
-			break;
-		case Two_vert:
-			city_squares[y][x].twoway_road_vert = true;
-			break;
+//		case Two_hor:
+//			city_squares[y][x].twoway_road = true;
+//			break;
+//		case Two_vert:
+//			city_squares[y][x].twoway_road_vert = true;
+//			break;
 		default:
 			break;
 		}

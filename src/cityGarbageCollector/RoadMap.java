@@ -33,7 +33,7 @@ public class RoadMap {
 	public static boolean verbose = true;
 
 	public static enum Road_Type {
-		Two_vert, Two_hor, One_South, One_North, One_East, One_West
+		/*Two_vert, Two_hor,*/ One_South, One_North, One_East, One_West
 	};
 
 	public static final char COMMENT = '#';

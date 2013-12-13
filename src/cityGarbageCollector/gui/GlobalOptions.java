@@ -133,6 +133,7 @@ public class GlobalOptions extends JPanel {
 		@SuppressWarnings("rawtypes")
 		DefaultComboBoxModel model = new DefaultComboBoxModel(GCollector.SPEED.values());
 		cb_global_speed.setModel(model);
+		cb_global_speed.setSelectedItem(GCollector.SPEED.Normal);
 
 		pauseListener = pauseAction();
 		cb_pause.addActionListener(pauseListener);
