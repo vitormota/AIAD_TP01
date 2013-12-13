@@ -18,7 +18,6 @@ import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
-<<<<<<< HEAD
 import jadex.micro.annotation.Binding;
 import jadex.micro.annotation.Implementation;
 import jadex.micro.annotation.ProvidedService;
@@ -32,14 +31,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 
 import cityGarbageCollector.ChatService;
-=======
 import jadex.micro.annotation.Argument;
 import jadex.micro.annotation.Arguments;
 import jadex.rules.eca.annotations.Event;
 
 import java.util.LinkedList;
-
->>>>>>> b58db7903735f0803bc4b7b7dce6d70aca2db3cf
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.plan.DumpWastePlan;
