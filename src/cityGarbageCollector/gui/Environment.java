@@ -58,6 +58,10 @@ public class Environment extends JFrame{
 		return city.getSize_w();
 	}
 	
+	public boolean getPauseState(){
+		return eastPanel.getPauseState();
+	}
+	
 	public void setAgentPosTextFields(int x, int y){
 		southPanel.setAgentLocation(x, y);
 	}

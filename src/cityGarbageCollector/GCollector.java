@@ -1,13 +1,26 @@
 package cityGarbageCollector;
 
+import jadex.base.Starter;
+import jadex.bdiv3.BDIAgent;
+import jadex.bridge.IComponentIdentifier;
+import jadex.bridge.IExternalAccess;
+import jadex.bridge.service.RequiredServiceInfo;
+import jadex.bridge.service.search.SServiceProvider;
+import jadex.bridge.service.types.cms.CreationInfo;
+import jadex.bridge.service.types.cms.IComponentManagementService;
+import jadex.commons.future.ThreadSuspendable;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
+import tutorial.Launcher;
 import cityGarbageCollector.RoadMap.Road_Type;
+import cityGarbageCollector.agent.CityBDI;
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.agent.ContainerBDI;
 import cityGarbageCollector.agent.BurnerBDI;
+import cityGarbageCollector.gui.City.Gridpanel;
 import cityGarbageCollector.gui.Environment;
 
 /**
@@ -18,14 +31,11 @@ import cityGarbageCollector.gui.Environment;
  */
 public class GCollector {
 
-	/**
-	 * singleton instance
-	 */
-	private static GCollector instance = null;
-	public static boolean verbose = true;
+	// ================================================================================
+	// Public
+	// ================================================================================
 
-	private float speed = SPEED.Normal.speed;
-	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+	public static boolean verbose = true;
 
 	public static enum SPEED {
 		Slow(0.5f), Normal(1.0f), Fast(2.0f), Super(3.0f);
@@ -38,12 +48,27 @@ public class GCollector {
 		}
 	};
 
-	private Environment env = null;
+	// ================================================================================
+	// Private declarations
+	// ================================================================================
 
+	private Environment env = null;
 	private ArrayList<CollectorBDI> collector_agents;
 	private ArrayList<ContainerBDI> container_agents;
 	private ArrayList<BurnerBDI> burner_agents;
-	
+	private float speed = SPEED.Normal.speed;
+	private final ReentrantReadWriteLock lock = new ReentrantReadWriteLock(true);
+	private static ThreadSuspendable sus;
+	private static IExternalAccess pl;
+	private static IComponentManagementService cms;
+	/**
+	 * singleton instance
+	 */
+	private static GCollector instance = null;
+
+	// ================================================================================
+	// Constructors
+	// ================================================================================
 
 	protected GCollector() {
 		collector_agents = new ArrayList<>();
@@ -51,24 +76,33 @@ public class GCollector {
 		burner_agents = new ArrayList<>();
 	}
 
+	// ================================================================================
+	// Operations
+	// ================================================================================
+
+	public void launchAgent(String classPath, CreationInfo cInfo) {
+		CityBDI.city.deployAgent(classPath, cInfo);
+	}
+
 	public static GCollector getInstance() {
 		if (instance == null)
 			instance = new GCollector();
 		return instance;
 	}
-	
-	public boolean isRoadOnLocation(Location loc){
-		return env.getCitySpacebyLocation(loc).hasRoad();
+
+	public boolean isRoadOnLocation(Location loc) {
+		Gridpanel gp = env.getCitySpacebyLocation(loc);
+		return gp == null ? false : gp.hasRoad();
 	}
 
 	public void addCollectorAgent(CollectorBDI agent) {
 		collector_agents.add(agent);
 	}
-	
+
 	public void addContainerAgent(ContainerBDI agent) {
 		container_agents.add(agent);
 	}
-	
+
 	public void addBurnerAgent(BurnerBDI burner) {
 		burner_agents.add(burner);
 	}
@@ -91,7 +125,7 @@ public class GCollector {
 		return res;
 	}
 
-public void setSpeed(SPEED s) {
+	public void setSpeed(SPEED s) {
 		try {
 			lock.writeLock().lock();
 			speed = s.speed;
@@ -110,9 +144,7 @@ public void setSpeed(SPEED s) {
 			lock.readLock().unlock();
 		}
 	}
-	
-	
-	
+
 	public Location[] getBurnerlocations() {
 		Location[] res = new Location[burner_agents.size()];
 		int i = 0;
@@ -121,18 +153,18 @@ public void setSpeed(SPEED s) {
 		}
 		return res;
 	}
-	
+
 	public ContainerBDI getContainerByLocation(Location loc) {
 		for (ContainerBDI c : container_agents) {
-			if(c.getLocation().equals(loc))
+			if (c.getLocation().equals(loc))
 				return c;
 		}
 		return null;
 	}
-	
+
 	public BurnerBDI getBurnerByLocation(Location loc) {
 		for (BurnerBDI b : burner_agents) {
-			if(b.getLocation().equals(loc))
+			if (b.getLocation().equals(loc))
 				return b;
 		}
 		return null;
@@ -167,15 +199,21 @@ public void setSpeed(SPEED s) {
 
 	public void toggleAgentPause() {
 		// TODO Auto-generated method stub
-		for(CollectorBDI c : collector_agents){
+		for (CollectorBDI c : collector_agents) {
 			c.togglePause();
 		}
 	}
 
+	public boolean getPauseState() {
+		if (env == null) {
+			return false;
+		}
+		return env.getPauseState();
+	}
 
 	public void modifyMap(Road_Type type, int x, int y) {
 		// TODO Auto-generated method stub
-		env.modifyMap(type, x,y);
+		env.modifyMap(type, x, y);
 	}
 
 }

@@ -133,6 +133,7 @@ public class GlobalOptions extends JPanel {
 		@SuppressWarnings("rawtypes")
 		DefaultComboBoxModel model = new DefaultComboBoxModel(GCollector.SPEED.values());
 		cb_global_speed.setModel(model);
+		cb_global_speed.setSelectedItem(GCollector.SPEED.Normal);
 
 		pauseListener = pauseAction();
 		cb_pause.addActionListener(pauseListener);
@@ -159,6 +160,13 @@ public class GlobalOptions extends JPanel {
 		tf_modify_map_y.setText("" + y);
 	}
 
+	public boolean getPauseState() {
+		if (cb_pause != null) {
+			return this.cb_pause.isSelected();
+		}
+		return false;
+	}
+
 	// ================================================================================
 	// Actions && Listeners
 	// ================================================================================
@@ -173,7 +181,7 @@ public class GlobalOptions extends JPanel {
 				int x = Integer.parseInt(tf_modify_map_x.getText());
 				int y = Integer.parseInt(tf_modify_map_y.getText());
 				Road_Type type = (Road_Type) cb_modify.getSelectedItem();
-				GCollector.getInstance().modifyMap(type,x,y);
+				GCollector.getInstance().modifyMap(type, x, y);
 			}
 		};
 	}
