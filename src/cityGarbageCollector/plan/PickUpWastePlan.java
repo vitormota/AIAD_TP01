@@ -49,7 +49,7 @@ public class PickUpWastePlan {
 	 */
 	@PlanBody
 	public void body() throws InterruptedException {
-		System.out.println("at pickup planbody");
+		//System.out.println("at pickup planbody");
 		Location[] clocations = GCollector.getInstance().getContainerlocations();
 		Location loc = collector.getLocation();
 

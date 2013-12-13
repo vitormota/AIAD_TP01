@@ -3,6 +3,7 @@ package cityGarbageCollector.agent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import jadex.base.Starter;
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
@@ -16,6 +17,7 @@ import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.service.IServiceProvider;
 import jadex.bridge.service.RequiredServiceInfo;
 import jadex.bridge.service.search.SServiceProvider;
+import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.ThreadSuspendable;
 import jadex.micro.annotation.Agent;
@@ -34,16 +36,18 @@ import cityGarbageCollector.plan.MapUpdate;
 @Agent
 @Plans({ @Plan(trigger = @Trigger(goals = CityBDI.PerformMapUpdate.class), body = @Body(MapUpdate.class)) })
 public class CityBDI {
+	
+	public static CityBDI city;
 
 	@Agent
 	protected BDIAgent agent;
 
 	@Belief
 	protected Location[] collector_locations;
-	
+
 	@Belief
 	protected Location[] container_locations;
-	
+
 	@Belief
 	protected Location[] burner_locations;
 
@@ -52,7 +56,7 @@ public class CityBDI {
 
 	@Belief
 	protected boolean pause = false;
-	
+
 	@Belief
 	public static final long SLEEP_MILLIS = 100;
 
@@ -63,6 +67,7 @@ public class CityBDI {
 	public void body() {
 		try {
 			env = new Environment(agent.getExternalAccess());
+			city = this;
 		} catch (FileNotFoundException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -71,11 +76,24 @@ public class CityBDI {
 		agent.dispatchTopLevelGoal(new PerformMapUpdate()).get();
 	}
 
+	public void deployAgent(String classPath, CreationInfo cInfo) {
+		ThreadSuspendable sus = new ThreadSuspendable();
+
+		/**
+		 * General interface for components that the container can execute.
+		 */
+		IComponentManagementService cms = SServiceProvider.getService(agent.getServiceProvider(), IComponentManagementService.class,
+				RequiredServiceInfo.SCOPE_PLATFORM).get(sus);
+
+		//String classPath = "cityGarbageCollector/agent/CollectorBDI.class";
+		IComponentIdentifier hw = cms.createComponent(classPath, cInfo).getFirstResult(sus);
+		System.out.println("started: " + hw);
+	}
+
 	public void updateMap() {
 		container_locations = GCollector.getInstance().getContainerlocations();
 		burner_locations = GCollector.getInstance().getBurnerlocations();
-		
-		
+
 		// get Agent new Locations
 		Location[] collectorLocations_new = GCollector.getInstance().getCollectorlocations();
 		// clear previous location icons
@@ -111,7 +129,7 @@ public class CityBDI {
 				}
 			}
 		}
-		
+
 		// draw container agents on map
 		for (int i = 0; i < container_locations.length; i++) {
 			env.getCitySpacebyLocation(container_locations[i]).container = true;
@@ -124,7 +142,7 @@ public class CityBDI {
 				}
 			}
 		}
-		
+
 		// draw burner agents on map
 		for (int i = 0; i < burner_locations.length; i++) {
 			env.getCitySpacebyLocation(burner_locations[i]).burner = true;
@@ -137,7 +155,7 @@ public class CityBDI {
 				}
 			}
 		}
-		
+
 		collector_locations = new Location[collectorLocations_new.length];
 		System.arraycopy(collectorLocations_new, 0, collector_locations, 0, collector_locations.length);
 	}

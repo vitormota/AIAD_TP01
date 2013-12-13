@@ -106,6 +106,10 @@ public class City extends JPanel {
 	}
 
 	public void modifyMap(Road_Type type, int x, int y) {
+		if(x == 0 || x == getSize_w()-1 || y == 0 || y == getSize_h() -1){
+			System.err.println("Borders are not modifiable...");
+			return;
+		}
 		Gridpanel up = city_squares[y-1][x], down = city_squares[y+1][x], right = city_squares[y][x+1], left = city_squares[y][x-1];
 		Vertex v = new Vertex(new Location(x, y));
 		map.addVertice(v);
@@ -251,6 +255,7 @@ public class City extends JPanel {
 	}
 
 	public Gridpanel getSpaceByLocation(Location l) {
+		if(l.x < 0 || l.x >= getSize_w() || l.y < 0 || l.y >= getSize_h()) return null;
 		return city_squares[l.y][l.x];
 	}
 

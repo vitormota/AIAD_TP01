@@ -1,10 +1,9 @@
 package cityGarbageCollector.gui;
 
-import jadex.bdiv3.BDIAgent;
-import jadex.bridge.service.BasicService;
+import jadex.bridge.service.types.cms.CreationInfo;
 
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
@@ -12,6 +11,7 @@ import javax.swing.JPanel;
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.agent.CollectorBDI;
+import cityGarbageCollector.agent.CollectorBDI.Trash_Type;
 
 public class AgentOptions extends JPanel {
 
@@ -49,11 +49,6 @@ public class AgentOptions extends JPanel {
 		tf_agent_name.setMaximumSize(new java.awt.Dimension(60, 24));
 		tf_agent_name.setMinimumSize(new java.awt.Dimension(60, 24));
 		tf_agent_name.setPreferredSize(new java.awt.Dimension(60, 24));
-		tf_agent_name.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				tf_agent_nameActionPerformed(evt);
-			}
-		});
 		add(tf_agent_name);
 
 		jLabel2.setText("x:");
@@ -62,11 +57,6 @@ public class AgentOptions extends JPanel {
 		tf_agent_x.setMaximumSize(new java.awt.Dimension(28, 24));
 		tf_agent_x.setMinimumSize(new java.awt.Dimension(28, 24));
 		tf_agent_x.setPreferredSize(new java.awt.Dimension(28, 24));
-		tf_agent_x.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				tf_agent_xActionPerformed(evt);
-			}
-		});
 		add(tf_agent_x);
 
 		jLabel3.setText("y:");
@@ -75,17 +65,12 @@ public class AgentOptions extends JPanel {
 		tf_agent_y.setMaximumSize(new java.awt.Dimension(28, 24));
 		tf_agent_y.setMinimumSize(new java.awt.Dimension(28, 24));
 		tf_agent_y.setPreferredSize(new java.awt.Dimension(28, 24));
-		tf_agent_y.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				tf_agent_yActionPerformed(evt);
-			}
-		});
 		add(tf_agent_y);
 
 		jLabel4.setText("Type:");
 		add(jLabel4);
 
-		cb_agent_type.setModel(new javax.swing.DefaultComboBoxModel(new String[] { "Item 1", "Item 2", "Item 3", "Item 4" }));
+		cb_agent_type.setModel(new javax.swing.DefaultComboBoxModel(Trash_Type.values()));
 		add(cb_agent_type);
 
 		jLabel5.setText("Capacity:");
@@ -94,11 +79,6 @@ public class AgentOptions extends JPanel {
 		tf_agent_cap.setMaximumSize(new java.awt.Dimension(30, 24));
 		tf_agent_cap.setMinimumSize(new java.awt.Dimension(30, 24));
 		tf_agent_cap.setPreferredSize(new java.awt.Dimension(30, 24));
-		tf_agent_cap.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(java.awt.event.ActionEvent evt) {
-				tf_agent_capActionPerformed(evt);
-			}
-		});
 		add(tf_agent_cap);
 
 		bt_agent_deploy.setText("Deploy");
@@ -119,35 +99,33 @@ public class AgentOptions extends JPanel {
 	// Actions && Listeners
 	// ================================================================================
 
-	private void tf_agent_nameActionPerformed(java.awt.event.ActionEvent evt) {
-		// TODO add your handling code here:
-	}
-
-	private void tf_agent_xActionPerformed(java.awt.event.ActionEvent evt) {
-		// TODO add your handling code here:
-	}
-
-	private void tf_agent_yActionPerformed(java.awt.event.ActionEvent evt) {
-		// TODO add your handling code here:
-	}
-
-	private void tf_agent_capActionPerformed(java.awt.event.ActionEvent evt) {
-		// TODO add your handling code here:
-	}
-
 	private void bt_agent_deployActionPerformed(java.awt.event.ActionEvent evt) {
 		// TODO add your handling code here:
 		// Deploy button action goes here
-		int x = Integer.parseInt(tf_agent_x.getText());
-		int y = Integer.parseInt(tf_agent_y.getText());
-		int cap = Integer.parseInt(tf_agent_cap.getText());
+		String name = tf_agent_name.getText();
+		int cap = -1, x = -1, y = -1;
+		try {
+			x = Integer.parseInt(tf_agent_x.getText());
+			y = Integer.parseInt(tf_agent_y.getText());
+			cap = Integer.parseInt(tf_agent_cap.getText());
+		} catch (NumberFormatException ex) {
+			System.err.println("Some values could not be parsed.");
+		}
 		Location loc = new Location(x, y);
-//		CollectorBDI agent = new CollectorBDI(loc, cap, tf_agent_name.getText());
-//		if (GCollector.getInstance().isRoadOnLocation(loc)) {
-//			GCollector.getInstance().addAgent(agent);
-//		} else {
-//			JOptionPane.showMessageDialog(this, "Please insert agent on a Road.", "Bad location", JOptionPane.ERROR_MESSAGE);
-//		}
+		if (GCollector.getInstance().isRoadOnLocation(loc)) {
+			Trash_Type type = (Trash_Type) cb_agent_type.getSelectedItem();
+			Map<String, Object> agentArgs = new HashMap<String, Object>();
+			agentArgs.put("Location", loc);
+			if (cap != -1)
+				agentArgs.put("Capacity", cap);
+			if (name.length() > 0)
+				agentArgs.put("Name", name);
+			agentArgs.put("Type", type);
+			CreationInfo cInfo = new CreationInfo(agentArgs);
+			GCollector.getInstance().launchAgent(CollectorBDI.CLASS_PATH, cInfo);
+		} else {
+			JOptionPane.showMessageDialog(this, "Please insert agent on a Road.", "Bad location", JOptionPane.ERROR_MESSAGE);
+		}
 	}
 
 	// Variables declaration - do not modify

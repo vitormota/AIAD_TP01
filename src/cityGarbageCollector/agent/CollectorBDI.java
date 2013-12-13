@@ -1,18 +1,13 @@
 package cityGarbageCollector.agent;
 
-import java.util.LinkedList;
-
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
 import jadex.bdiv3.annotation.Goal;
 import jadex.bdiv3.annotation.Goal.ExcludeMode;
-import jadex.bdiv3.annotation.Deliberation;
 import jadex.bdiv3.annotation.GoalContextCondition;
 import jadex.bdiv3.annotation.GoalCreationCondition;
 import jadex.bdiv3.annotation.GoalDropCondition;
-import jadex.bdiv3.annotation.GoalMaintainCondition;
-import jadex.bdiv3.annotation.GoalTargetCondition;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Plans;
 import jadex.bdiv3.annotation.Trigger;
@@ -20,10 +15,14 @@ import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
+import jadex.micro.annotation.Argument;
+import jadex.micro.annotation.Arguments;
 import jadex.rules.eca.annotations.Event;
+
+import java.util.LinkedList;
+
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
-import cityGarbageCollector.Vertex;
 import cityGarbageCollector.plan.DumpWastePlan;
 import cityGarbageCollector.plan.GoToBurnerPlan;
 import cityGarbageCollector.plan.PickUpWastePlan;
@@ -34,12 +33,28 @@ import cityGarbageCollector.plan.Wander;
 		@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
 		@Plan(trigger = @Trigger(goals = CollectorBDI.GoToBurnerGoal.class), body = @Body(GoToBurnerPlan.class)),
 		@Plan(trigger = @Trigger(goals = CollectorBDI.DumpGoal.class), body = @Body(DumpWastePlan.class)) })
+@Arguments({
+	@Argument(name="Location", clazz=Location.class),
+	@Argument(name="Type", clazz=CollectorBDI.Trash_Type.class, defaultvalue="Common"),
+	@Argument(name="Name", clazz=String.class, defaultvalue="Nameless"),
+	@Argument(name="Capacity", clazz=Integer.class, defaultvalue="10")
+})
 public class CollectorBDI {
 
+	public static final String CLASS_PATH = "cityGarbageCollector/agent/CollectorBDI.class";
+	
 	@Agent
 	protected BDIAgent agent;
 
-	private String name;
+	@Belief
+	public String name;
+	
+	public static enum Trash_Type{
+		Common, Metal, Plastic, Paper
+	}
+	
+	@Belief
+	public Trash_Type type = Trash_Type.Common;
 
 	@Belief
 	private int capacity;
@@ -58,15 +73,16 @@ public class CollectorBDI {
 
 	@AgentCreated
 	public void init() {
-		position = new Location(0, 0);
+		position = (Location) agent.getArgument("Location");
 		steps = new LinkedList<>();
-		capacity = 50;
+		type = (Trash_Type) agent.getArgument("Type");
+		capacity = (Integer) agent.getArgument("Capacity");
+		name = (String) agent.getArgument("Name");
 		actualWasteQuantity = 0;
+		this.pause = GCollector.getInstance().getPauseState();
 		GCollector.getInstance().addCollectorAgent(this);
 	}
 	
-	
-
 	@AgentBody
 	public void body() {
 		agent.dispatchTopLevelGoal(new CheckContainer());
@@ -201,13 +217,13 @@ public class CollectorBDI {
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class PerformPatrol {
 
-		/**
-		 * Suspend the goal when on pause.
-		 */
-		@GoalContextCondition(rawevents = "pause")
-		public boolean checkContext() {
-			return (!pause && !full);
-		}
+//		/**
+//		 * Suspend the goal when on pause.
+//		 */
+//		@GoalContextCondition(rawevents = "pause")
+//		public boolean checkContext() {
+//			return (!pause && !full);
+//		}
 
 	}
 
