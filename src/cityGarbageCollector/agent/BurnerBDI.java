@@ -26,7 +26,7 @@ public class BurnerBDI {
 	@AgentCreated
 	public void init() {
 		wasteDumped=0;
-		position = new Location(5,5);
+		position = new Location(1,5);
 		GCollector.getInstance().addBurnerAgent(this);
 	}
 

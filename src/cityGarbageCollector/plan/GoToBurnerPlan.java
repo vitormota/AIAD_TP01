@@ -12,8 +12,8 @@ public class GoToBurnerPlan {
 
 	@PlanCapability
 	private CollectorBDI collector;
-	
-	
+
+
 
 	// -------- constructors --------
 
@@ -21,12 +21,12 @@ public class GoToBurnerPlan {
 	 * Create a new plan.
 	 */
 	public GoToBurnerPlan() {
-		System.out.println("created: " + this);
+		//System.out.println("created: " + this);
 	}
 
 	// -------- methods --------
 
-	
+
 
 	/**
 	 * The plan body.
@@ -35,7 +35,18 @@ public class GoToBurnerPlan {
 	@PlanBody
 	public void body() throws InterruptedException {
 		System.out.println("GOTOBURNER Plan body!");
-		//descola-se para a posição do burner
+		while (collector.pause) {
+			Thread.sleep(1000);
+		}
+
+		if(collector.aux==false) {
+			//descola-se para a posição do burner
+			Location loc = collector.getNearestBurner();
+			collector.goToLocation(loc);
+			collector.aux=true;
+		}
+
 		collector.updatePosition();
+		Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
 	}
 }

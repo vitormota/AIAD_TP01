@@ -20,15 +20,13 @@ public class DumpWastePlan {
 	 * Create a new plan.
 	 */
 	public DumpWastePlan() {
-		System.out.println("created: " + this);
+		//System.out.println("created: " + this);
 	}
 
 	// -------- methods --------
 
 
-	public void DumpWastetoBurner(BurnerBDI burner) {
-		System.out.println("at DumpWastetoBurner");
-		
+	public void DumpWastetoBurner(BurnerBDI burner) {	
 		int q = collector.getActualWasteQuantity();
 		burner.dumpWaste(q);
 		collector.dump();
@@ -59,10 +57,12 @@ public class DumpWastePlan {
 				found=true;
 
 			if(found==true) {
-				System.out.println("Burner Encontrado!");
+				System.out.println("------Burner Encontrado!");
 				BurnerBDI b = GCollector.getInstance().getBurnerByLocation(burnerlocations[i]);
 				DumpWastetoBurner(b);
+				collector.aux=false;
 			}
 		}
+		Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
 	}
 }

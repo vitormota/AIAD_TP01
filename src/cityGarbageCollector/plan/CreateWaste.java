@@ -1,5 +1,7 @@
 package cityGarbageCollector.plan;
 
+import cityGarbageCollector.GCollector;
+import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.agent.ContainerBDI;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.PlanBody;
@@ -29,6 +31,7 @@ public class CreateWaste {
 	@PlanBody
 	public void body() throws InterruptedException{
 		container.incrementWaste();
+		Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
 	}
 
 }

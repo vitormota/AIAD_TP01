@@ -2,6 +2,8 @@ package cityGarbageCollector.agent;
 
 import java.util.LinkedList;
 
+import sun.awt.SunToolkit.InfiniteLoop;
+
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
@@ -31,15 +33,17 @@ import cityGarbageCollector.plan.Wander;
 
 @Agent
 @Plans({ @Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class)),
-		@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
-		@Plan(trigger = @Trigger(goals = CollectorBDI.GoToBurnerGoal.class), body = @Body(GoToBurnerPlan.class)),
-		@Plan(trigger = @Trigger(goals = CollectorBDI.DumpGoal.class), body = @Body(DumpWastePlan.class)) })
+	@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
+	@Plan(trigger = @Trigger(goals = CollectorBDI.GoToBurnerGoal.class), body = @Body(GoToBurnerPlan.class)),
+	@Plan(trigger = @Trigger(goals = CollectorBDI.DumpGoal.class), body = @Body(DumpWastePlan.class)) })
 public class CollectorBDI {
 
 	@Agent
 	protected BDIAgent agent;
 
 	private String name;
+	
+	public boolean aux = false;
 
 	@Belief
 	private int capacity;
@@ -64,14 +68,14 @@ public class CollectorBDI {
 		actualWasteQuantity = 0;
 		GCollector.getInstance().addCollectorAgent(this);
 	}
-	
-	
+
+
 
 	@AgentBody
 	public void body() {
 		agent.dispatchTopLevelGoal(new CheckContainer());
 		agent.dispatchTopLevelGoal(new PerformPatrol());
-		// agent.dispatchTopLevelGoal(new DumpGoal());
+		agent.dispatchTopLevelGoal(new DumpGoal());
 		// System.out.println("agentbody");
 	}
 
@@ -100,6 +104,25 @@ public class CollectorBDI {
 		steps = GCollector.getInstance().getAgentTrip(position, dest);
 	}
 
+	public void pickWaste(int quantity) {
+		if(quantity>0) {
+			actualWasteQuantity+=quantity;
+			if(actualWasteQuantity == capacity)
+				full=true;
+		}
+	}
+
+	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
+	public class CheckContainer {
+		/**
+		 * Suspend the goal when on pause.
+		 */
+		@GoalContextCondition(rawevents = "pause")
+		public boolean checkContext(){
+			return (!pause && !full);
+		}
+	}
+
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class DumpGoal {
 		/**
@@ -111,31 +134,11 @@ public class CollectorBDI {
 		}
 	}
 
-	public void pickWaste(int quantity) {
-		actualWasteQuantity += quantity;
-	}
-	
-	
-	/**
-	 * Create a new goal whenever full belief is changed.
-	 */
-	// @Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class,
-	// CheckContainer.class}))
-	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
-	public class CheckContainer {
-
-	}
-
-	@Goal
-	public class PickUpWaste {
-
-	}
 
 	/**
 	 * Create a new goal whenever full belief is changed.
 	 */
-	// @Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class,
-	// CheckContainer.class}))
+	// @Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class, CheckContainer.class}))
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class GoToBurnerGoal {
 
@@ -166,12 +169,13 @@ public class CollectorBDI {
 		public GoToBurnerGoal(@Event("full") boolean fullH) {
 			fullHere = fullH;
 			System.out.println("AQUII " + fullHere);
-
+			/*
 			// se full define os steps para o burner +proximo
 			if (full) { // SUFICIENTE??
 				Location loc = getNearestBurner();
 				goToLocation(loc);
 			}
+			 */
 		}
 
 		/**
@@ -223,7 +227,7 @@ public class CollectorBDI {
 	public int getRemainingCapacity() {
 		return capacity - actualWasteQuantity;
 	}
-	
+
 	public void togglePause() {
 		pause = !pause;
 	}
@@ -237,19 +241,26 @@ public class CollectorBDI {
 		full = false;
 	}
 
+
 	public Location getNearestBurner() {
 		Location[] burnerlocations = GCollector.getInstance().getBurnerlocations();
-		int x = 0;
-		LinkedList<Location> tempSteps = GCollector.getInstance().getAgentTrip(position, burnerlocations[0]);
+		int lessSteps = Integer.MAX_VALUE;
+		Location nearestLoc = null;
 
 		for (int i = 0; i < burnerlocations.length; i++) {
-			if (GCollector.getInstance().getAgentTrip(position, burnerlocations[i]).size() < tempSteps.size()) {
-				tempSteps = GCollector.getInstance().getAgentTrip(position, burnerlocations[i]);
-				x = i;
+			Location[] locs = new Location[4];
+			locs[0] = new Location(burnerlocations[i].x+1, burnerlocations[i].y);
+			locs[1] = new Location(burnerlocations[i].x, burnerlocations[i].y+1);
+			locs[2] = new Location(burnerlocations[i].x-1, burnerlocations[i].y);
+			locs[3] = new Location(burnerlocations[i].x, burnerlocations[i].y-1);
+
+			for(int j=0; j < 4; j++) {
+				if(GCollector.getInstance().isRoadOnLocation(locs[j]))
+					if ((GCollector.getInstance().getAgentTrip(position, locs[j])).size() < lessSteps)
+						nearestLoc=locs[j];
 			}
 		}
-
-		return burnerlocations[x];
+		return nearestLoc;
 	}
 
 }
