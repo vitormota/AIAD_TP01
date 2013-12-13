@@ -157,21 +157,7 @@ public static enum Trash_Type{
 			return !pause;
 		}
 	}
-
-	public void pickWaste(int quantity) {
-		actualWasteQuantity += quantity;
-	}
 	
-	
-	/**
-	 * Create a new goal whenever full belief is changed.
-	 */
-	// @Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class,
-	// CheckContainer.class}))
-	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
-	public class CheckContainer {
-
-	}
 
 	@Goal
 	public class PickUpWaste {
