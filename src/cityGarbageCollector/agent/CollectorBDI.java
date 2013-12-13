@@ -1,37 +1,49 @@
 package cityGarbageCollector.agent;
 
-import java.util.LinkedList;
-
-import sun.awt.SunToolkit.InfiniteLoop;
-
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
 import jadex.bdiv3.annotation.Goal;
 import jadex.bdiv3.annotation.Goal.ExcludeMode;
-import jadex.bdiv3.annotation.Deliberation;
 import jadex.bdiv3.annotation.GoalContextCondition;
 import jadex.bdiv3.annotation.GoalCreationCondition;
 import jadex.bdiv3.annotation.GoalDropCondition;
-import jadex.bdiv3.annotation.GoalMaintainCondition;
-import jadex.bdiv3.annotation.GoalTargetCondition;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Plans;
 import jadex.bdiv3.annotation.Trigger;
+import jadex.bridge.service.types.chat.IChatService;
+import jadex.commons.future.DefaultResultListener;
+import jadex.commons.future.IFuture;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
+import jadex.micro.annotation.Binding;
+import jadex.micro.annotation.Implementation;
+import jadex.micro.annotation.ProvidedService;
+import jadex.micro.annotation.ProvidedServices;
+import jadex.micro.annotation.RequiredService;
+import jadex.micro.annotation.RequiredServices;
 import jadex.rules.eca.annotations.Event;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import cityGarbageCollector.ChatService;
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
-import cityGarbageCollector.Vertex;
 import cityGarbageCollector.plan.DumpWastePlan;
 import cityGarbageCollector.plan.GoToBurnerPlan;
 import cityGarbageCollector.plan.PickUpWastePlan;
 import cityGarbageCollector.plan.Wander;
 
 @Agent
+@ProvidedServices(@ProvidedService(type=IChatService.class, implementation=@Implementation(ChatService.class)))
+@RequiredServices({
+@RequiredService(name="chatservices", type=IChatService.class, multiple=true,
+	binding=@Binding(dynamic=true, scope=Binding.SCOPE_PLATFORM))
+})
 @Plans({ @Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class)),
 	@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
 	@Plan(trigger = @Trigger(goals = CollectorBDI.GoToBurnerGoal.class), body = @Body(GoToBurnerPlan.class)),
@@ -59,6 +71,9 @@ public class CollectorBDI {
 
 	@Belief
 	public static final long SLEEP_MILLIS = 500;
+	
+	@Belief
+	private static final int nrMsg=0;
 
 	@AgentCreated
 	public void init() {
@@ -77,7 +92,10 @@ public class CollectorBDI {
 		agent.dispatchTopLevelGoal(new PerformPatrol());
 		agent.dispatchTopLevelGoal(new DumpGoal());
 		// System.out.println("agentbody");
+		//sendMessage("OKKKK");
 	}
+
+
 
 	@AgentKilled
 	public void killed() {
@@ -142,27 +160,6 @@ public class CollectorBDI {
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class GoToBurnerGoal {
 
-		// /**
-		// * When the chargestate is below 0.2
-		// * the cleaner will activate this goal.
-		// *
-		// */
-		// @GoalMaintainCondition(rawevents="actualWasteQuantity")
-		// public boolean checkMaintain()
-		// {
-		// return (actualWasteQuantity < 50);
-		// }
-		//
-		// /**
-		// * The target condition determines when
-		// * the goal goes back to idle.
-		// */
-		// @GoalTargetCondition(rawevents="actualWasteQuantity")
-		// public boolean checkTarget()
-		// {
-		// return (actualWasteQuantity == 0);
-		// }*/
-
 		protected boolean fullHere;
 
 		@GoalCreationCondition(rawevents = "full")
@@ -177,19 +174,6 @@ public class CollectorBDI {
 			}
 			 */
 		}
-
-		/**
-		 * The goal is achieved when the position
-		 * of the cleaner is near to the target position.
-		 * 
-		 * @GoalContextCondition(rawevents="full")
-		 *                                         public boolean checkTarget()
-		 *                                         {
-		 *                                         System.out.println(
-		 *                                         "checktarget");
-		 *                                         return !full;
-		 *                                         }
-		 */
 
 		/**
 		 * Drop the goal when collector is not full
@@ -262,5 +246,46 @@ public class CollectorBDI {
 		}
 		return nearestLoc;
 	}
+	
+	
+	public String getLocalName() {
+		return agent.getComponentIdentifier().getLocalName();
+	}
+	
+	/** The underlying micro agent. */
+	//@Agent
+	//protected MicroAgent agent;
+ 
+	/**
+	 *  Execute the functional body of the agent.
+	 *  Is only called once.
+	 */
+	private void sendMessage(final String text, final boolean first) {
+		IFuture<Collection<IChatService>>	chatservices	= agent.getServiceContainer().getRequiredServices("chatservices");
+		chatservices.addResultListener(new DefaultResultListener<Collection<IChatService>>()
+		{
+			public void resultAvailable(Collection<IChatService> result)
+			{
+				for(Iterator<IChatService> it=result.iterator(); it.hasNext(); ) {
+					IChatService cs = it.next();
+					cs.message(agent.getComponentIdentifier().getLocalName(), text, first);
+				}
+			}
+		});
+	}
 
+	public void receiveMessage(String nick, String text, boolean first) {
+		if(nick != getLocalName())
+		{
+			String[] msg = text.split("-");
+			if(first) {
+				
+			}
+			else {
+				
+			}
+			
+			
+		}
+	}
 }
