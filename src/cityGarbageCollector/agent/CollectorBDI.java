@@ -3,7 +3,6 @@ package cityGarbageCollector.agent;
 import java.util.LinkedList;
 
 import sun.awt.SunToolkit.InfiniteLoop;
-
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
 import jadex.bdiv3.annotation.Body;
@@ -28,6 +27,8 @@ import jadex.rules.eca.annotations.Event;
 
 import java.util.LinkedList;
 
+import com.sun.org.glassfish.gmbal.Description;
+
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
 import cityGarbageCollector.Vertex;
@@ -37,6 +38,7 @@ import cityGarbageCollector.plan.PickUpWastePlan;
 import cityGarbageCollector.plan.Wander;
 
 @Agent
+@Description("Trash collector agent")
 @Plans({ @Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class)),
 	@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
 	@Plan(trigger = @Trigger(goals = CollectorBDI.GoToBurnerGoal.class), body = @Body(GoToBurnerPlan.class)),
@@ -84,6 +86,9 @@ public static enum Trash_Type{
 	@AgentCreated
 	public void init() {
 		position = (Location) agent.getArgument("Location");
+		if(position == null){
+			position = new Location(0, 0);
+		}
 		steps = new LinkedList<>();
 		type = (Trash_Type) agent.getArgument("Type");
 		capacity = (Integer) agent.getArgument("Capacity");

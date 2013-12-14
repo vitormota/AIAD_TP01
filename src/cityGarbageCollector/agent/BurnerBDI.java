@@ -25,7 +25,7 @@ public class BurnerBDI {
 	
 	@AgentCreated
 	public void init() {
-		wasteDumped=0;
+		wasteDumped = 0;
 		position = new Location(1,5);
 		GCollector.getInstance().addBurnerAgent(this);
 	}
@@ -41,7 +41,7 @@ public class BurnerBDI {
 	}
 	
 	public void dumpWaste(int quantity) {
-		wasteDumped+=quantity;		
+		wasteDumped += quantity;		
 	}
 
 
@@ -52,5 +52,13 @@ public class BurnerBDI {
 	public Location getLocation() {
 		return position.clone();
 	}
+
+	/**
+	 * @return the wasteDumped
+	 */
+	public int getWasteDumped() {
+		return wasteDumped;
+	}
+
 
 }

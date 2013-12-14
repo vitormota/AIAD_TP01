@@ -3,6 +3,8 @@ package cityGarbageCollector.agent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
+import com.sun.org.glassfish.gmbal.Description;
+
 import jadex.base.Starter;
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
@@ -35,6 +37,7 @@ import cityGarbageCollector.plan.MapUpdate;
  */
 @Agent
 @Plans({ @Plan(trigger = @Trigger(goals = CityBDI.PerformMapUpdate.class), body = @Body(MapUpdate.class)) })
+@Description("Agent that starts a city interface and keeps track of other agents locations on map.")
 public class CityBDI {
 	
 	public static CityBDI city;

@@ -1,11 +1,6 @@
 package cityGarbageCollector;
 
-import jadex.base.Starter;
-import jadex.bdiv3.BDIAgent;
-import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
-import jadex.bridge.service.RequiredServiceInfo;
-import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.ThreadSuspendable;
@@ -14,12 +9,11 @@ import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
-import tutorial.Launcher;
 import cityGarbageCollector.RoadMap.Road_Type;
+import cityGarbageCollector.agent.BurnerBDI;
 import cityGarbageCollector.agent.CityBDI;
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.agent.ContainerBDI;
-import cityGarbageCollector.agent.BurnerBDI;
 import cityGarbageCollector.gui.City.Gridpanel;
 import cityGarbageCollector.gui.Environment;
 
@@ -209,6 +203,29 @@ public class GCollector {
 			return false;
 		}
 		return env.getPauseState();
+	}
+
+	/**
+	 * [0] - containers
+	 * [1] - collectors
+	 * [2] - burners
+	 * [3] - all
+	 * 
+	 * @return an array with trash count on all places
+	 */
+	public int[] getTrashCount() {
+		int sum[] = { 0, 0, 0, 0 };
+		for (ContainerBDI b : container_agents) {
+			sum[0] += b.getWasteQuantity();
+		}
+		for (CollectorBDI c : collector_agents) {
+			sum[1] += c.getActualWasteQuantity();
+		}
+		for (BurnerBDI b : burner_agents) {
+			sum[2] += b.getWasteDumped();
+		}
+		sum[3] = sum[0] + sum[1] + sum[2];
+		return sum;
 	}
 
 	public void modifyMap(Road_Type type, int x, int y) {
