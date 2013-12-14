@@ -17,10 +17,26 @@ import jadex.bdiv3.annotation.GoalTargetCondition;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.Plans;
 import jadex.bdiv3.annotation.Trigger;
+import jadex.bridge.service.types.chat.IChatService;
+import jadex.commons.future.DefaultResultListener;
+import jadex.commons.future.IFuture;
 import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
+import jadex.micro.annotation.Binding;
+import jadex.micro.annotation.Implementation;
+import jadex.micro.annotation.ProvidedService;
+import jadex.micro.annotation.ProvidedServices;
+import jadex.micro.annotation.RequiredService;
+import jadex.micro.annotation.RequiredServices;
+import jadex.rules.eca.annotations.Event;
+
+import java.util.Collection;
+import java.util.Iterator;
+import java.util.LinkedList;
+
+import cityGarbageCollector.ChatService;
 import jadex.micro.annotation.Argument;
 import jadex.micro.annotation.Arguments;
 import jadex.rules.eca.annotations.Event;
@@ -39,6 +55,11 @@ import cityGarbageCollector.plan.Wander;
 
 @Agent
 @Description("Trash collector agent")
+@ProvidedServices(@ProvidedService(type=IChatService.class, implementation=@Implementation(ChatService.class)))
+@RequiredServices({
+@RequiredService(name="chatservices", type=IChatService.class, multiple=true,
+	binding=@Binding(dynamic=true, scope=Binding.SCOPE_PLATFORM))
+})
 @Plans({ @Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class)),
 	@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
 	@Plan(trigger = @Trigger(goals = CollectorBDI.GoToBurnerGoal.class), body = @Body(GoToBurnerPlan.class)),
@@ -82,6 +103,9 @@ public static enum Trash_Type{
 
 	@Belief
 	public static final long SLEEP_MILLIS = 500;
+	
+	@Belief
+	private static final int nrMsg=0;
 
 	@AgentCreated
 	public void init() {
@@ -106,7 +130,10 @@ public static enum Trash_Type{
 		agent.dispatchTopLevelGoal(new PerformPatrol());
 		agent.dispatchTopLevelGoal(new DumpGoal());
 		// System.out.println("agentbody");
+		//sendMessage("OKKKK");
 	}
+
+
 
 	@AgentKilled
 	public void killed() {
@@ -296,5 +323,46 @@ public static enum Trash_Type{
 		}
 		return nearestLoc;
 	}
+	
+	
+	public String getLocalName() {
+		return agent.getComponentIdentifier().getLocalName();
+	}
+	
+	/** The underlying micro agent. */
+	//@Agent
+	//protected MicroAgent agent;
+ 
+	/**
+	 *  Execute the functional body of the agent.
+	 *  Is only called once.
+	 */
+	private void sendMessage(final String text, final boolean first) {
+		IFuture<Collection<IChatService>>	chatservices	= agent.getServiceContainer().getRequiredServices("chatservices");
+		chatservices.addResultListener(new DefaultResultListener<Collection<IChatService>>()
+		{
+			public void resultAvailable(Collection<IChatService> result)
+			{
+				for(Iterator<IChatService> it=result.iterator(); it.hasNext(); ) {
+					IChatService cs = it.next();
+					cs.message(agent.getComponentIdentifier().getLocalName(), text, first);
+				}
+			}
+		});
+	}
 
+	public void receiveMessage(String nick, String text, boolean first) {
+		if(nick != getLocalName())
+		{
+			String[] msg = text.split("-");
+			if(first) {
+				
+			}
+			else {
+				
+			}
+			
+			
+		}
+	}
 }

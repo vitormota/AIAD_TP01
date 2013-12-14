@@ -1,6 +1,11 @@
 package cityGarbageCollector;
 
+import jadex.base.Starter;
+import jadex.bdiv3.BDIAgent;
+import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
+import jadex.bridge.service.RequiredServiceInfo;
+import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.ThreadSuspendable;
@@ -14,6 +19,7 @@ import cityGarbageCollector.agent.BurnerBDI;
 import cityGarbageCollector.agent.CityBDI;
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.agent.ContainerBDI;
+import cityGarbageCollector.agent.BurnerBDI;
 import cityGarbageCollector.gui.City.Gridpanel;
 import cityGarbageCollector.gui.Environment;
 
