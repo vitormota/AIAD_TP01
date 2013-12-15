@@ -56,33 +56,34 @@ public class PickUpWastePlan {
 		for(int i=0; i<clocations.length;i++) {
 
 			if( (loc.x+1 == clocations[i].x) && (loc.y == clocations[i].y) ) {
-				System.out.println("Container Encontrado!");
-				ContainerBDI c = GCollector.getInstance().getContainerByLocation(clocations[i]);
-				if(c.type==collector.type && !collector.full) {
-					getWaste(c);
-				}
-				else {
-					//envia msg para agentes do tipo do container
-					CollectorBDI.nrMsg++;
-					String tipoLixo = "";
-					String text=(Integer.toString(CollectorBDI.nrMsg))+"-"+tipoLixo+"-"+Integer.toString((collector.getLocation()).x)+"-"+Integer.toString((collector.getLocation()).y);
-					collector.sendMessage(text, true);
-				}
+				process(clocations, i);
 			}
 			else if( (loc.x == clocations[i].x) && (loc.y+1 == clocations[i].y) ) {
-				System.out.println("Container Encontrado!");
-				ContainerBDI c = GCollector.getInstance().getContainerByLocation(clocations[i]);
-				getWaste(c);
+				process(clocations, i);
 			}
 			else if( (loc.x-1 == clocations[i].x) && (loc.y == clocations[i].y) ) {
-				System.out.println("Container Encontrado!");
-				ContainerBDI c = GCollector.getInstance().getContainerByLocation(clocations[i]);
-				getWaste(c);
+				process(clocations, i);
 			}
 			else if( (loc.x == clocations[i].x) && (loc.y-1 == clocations[i].y) ) {
-				System.out.println("Container Encontrado!");
-				ContainerBDI c = GCollector.getInstance().getContainerByLocation(clocations[i]);
-				getWaste(c);
+				process(clocations, i);
+			}
+		}
+	}
+
+	private void process(Location[] clocations, int i) {
+		System.out.println("Container Encontrado!");
+		ContainerBDI c = GCollector.getInstance().getContainerByLocation(clocations[i]);
+		if((c.type==collector.type) && !collector.full) {
+			getWaste(c);
+		}
+		else {
+			if(c.getWasteQuantity()>50) {
+				//envia msg para agentes do tipo do container
+				CollectorBDI.nrMsg++;
+				String tipoLixo = (c.type).toString();
+				String text=(Integer.toString(CollectorBDI.nrMsg))+"-"+tipoLixo+"-"+Integer.toString((collector.getLocation()).x)+"-"+Integer.toString((collector.getLocation()).y);
+				collector.sendMessage(text, true);
+				GCollector.getInstance().msglocMap.put(CollectorBDI.nrMsg, collector.getLocation());
 			}
 		}
 	}

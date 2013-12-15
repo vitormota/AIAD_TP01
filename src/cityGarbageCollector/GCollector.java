@@ -6,7 +6,9 @@ import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.ThreadSuspendable;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.concurrent.locks.ReentrantReadWriteLock;
 
 import cityGarbageCollector.RoadMap.Road_Type;
@@ -17,6 +19,7 @@ import cityGarbageCollector.agent.CollectorBDI.Trash_Type;
 import cityGarbageCollector.agent.ContainerBDI;
 import cityGarbageCollector.gui.City.Gridpanel;
 import cityGarbageCollector.gui.Environment;
+import edu.uci.ics.jung.graph.util.Pair;
 
 /**
  * Singleton superinformed class
@@ -33,6 +36,8 @@ public class GCollector {
 	public static enum Agents_models {
 		Collector, Container, Burner
 	}
+	
+	public Map<Integer,Location> msglocMap;
 
 	public static boolean verbose = true;
 
@@ -70,6 +75,7 @@ public class GCollector {
 	// ================================================================================
 
 	protected GCollector() {
+		msglocMap = new HashMap<Integer,Location>();
 		collector_agents = new ArrayList<>();
 		container_agents = new ArrayList<>();
 		burner_agents = new ArrayList<>();
@@ -268,6 +274,11 @@ public class GCollector {
 	public void modifyMap(Road_Type type, int x, int y) {
 		// TODO Auto-generated method stub
 		env.modifyMap(type, x, y);
+	}
+
+	public boolean getMemory() {
+		// TODO Auto-generated method stub
+		return false;
 	}
 
 }

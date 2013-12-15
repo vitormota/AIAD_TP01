@@ -38,12 +38,13 @@ public class GoToBurnerPlan {
 		while (collector.pause) {
 			Thread.sleep(1000);
 		}
-
-		if(collector.aux==false) {
-			//descola-se para a posição do burner
-			Location loc = collector.getNearestBurner();
-			collector.goToLocation(loc);
-			collector.aux=true;
+		if(collector.memory) {
+			if(collector.aux==false) {
+				//descola-se para a posição do burner
+				Location loc = collector.getNearestBurner();
+				collector.goToLocation(loc);
+				collector.aux=true;
+			}
 		}
 
 		collector.updatePosition();
