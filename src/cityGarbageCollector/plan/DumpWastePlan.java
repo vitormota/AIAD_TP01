@@ -61,6 +61,7 @@ public class DumpWastePlan {
 				BurnerBDI b = GCollector.getInstance().getBurnerByLocation(burnerlocations[i]);
 				DumpWastetoBurner(b);
 				collector.aux=false;
+				collector.onGoing=false;
 			}
 		}
 		//Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
