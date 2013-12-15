@@ -63,6 +63,6 @@ public class DumpWastePlan {
 				collector.aux=false;
 			}
 		}
-		Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
+		//Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
 	}
 }

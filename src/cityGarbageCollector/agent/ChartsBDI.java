@@ -77,7 +77,7 @@ public class ChartsBDI {
 		dataset = new DefaultCategoryDataset();
 		ApplicationFrame af = new ApplicationFrame("AIAD - 2013/2014");
 		JPanel chartPanel = createChartPanel();
-		chartPanel.setPreferredSize(new Dimension(500, 270));
+		chartPanel.setPreferredSize(new Dimension(500, 400));
 //		af.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
 		af.setContentPane(chartPanel);
 		af.pack();

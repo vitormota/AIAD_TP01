@@ -109,6 +109,7 @@ public class CityBDI {
 				env.getCitySpacebyLocation(collector_locations[i]).collector = false;
 				try {
 					env.getCitySpacebyLocation(collector_locations[i]).updateImage();
+					env.getCitySpacebyLocation(collector_locations[i]).setText("");
 				} catch (IOException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();

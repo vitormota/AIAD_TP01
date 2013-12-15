@@ -45,7 +45,7 @@ public class Environment extends JFrame{
 		getContentPane().add(city,BorderLayout.CENTER);
 		getContentPane().add(southPanel,BorderLayout.SOUTH);
 		getContentPane().add(eastPanel,BorderLayout.EAST);
-		setSize(600, 600);
+		setSize(671, 600);
 		setLocation(SGUI.calculateMiddlePosition(Environment.this));
 		setVisible(true);
 		setTitle("FEUP - 2013/2014 - AIAD: City Garbage Collector");

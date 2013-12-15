@@ -1,9 +1,7 @@
 package cityGarbageCollector.gui;
 
-import java.awt.Color;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.List;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.File;
@@ -14,11 +12,10 @@ import java.util.LinkedList;
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.ImageIcon;
-import javax.swing.JComponent;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 import javax.swing.border.BevelBorder;
-import javax.swing.border.Border;
 
 import util.custom.StretchIcon;
 import cityGarbageCollector.Edge;
@@ -276,6 +273,7 @@ public class City extends JPanel {
 			this.y = y;
 			// this.setBorder(BorderFactory.createLineBorder(Color.RED));
 			addMouseListener(this);
+			setHorizontalAlignment(SwingConstants.RIGHT);
 		}
 
 		public Location toLoc() {
@@ -288,15 +286,17 @@ public class City extends JPanel {
 
 		public void updateImage() throws IOException {
 			if (collector) {
+				String text = GCollector.getInstance().getCollectorTag(new Location(x,y));
+				setText(text);
 				setIcon(new StretchIcon(ImageIO.read(new File("images/collector_on_road.png")), false));
 				return;
 			}
 			if (burner) {
-				setIcon(new StretchIcon(ImageIO.read(new File("images/burner.png")),false));
+				setIcon(new StretchIcon(ImageIO.read(new File("images/burner_icon.png")),false));
 				return;
 			}
 			if (container) {
-				setIcon(new ImageIcon(ImageIO.read(new File("images/garbage.png"))));
+				setIcon(new StretchIcon(ImageIO.read(new File("images/recycle_bin.png"))));
 				return;
 			}
 			if (oneway_road && oneway_road_vert) {

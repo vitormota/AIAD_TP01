@@ -31,7 +31,7 @@ public class CreateWaste {
 	@PlanBody
 	public void body() throws InterruptedException{
 		container.incrementWaste();
-		Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
+		Thread.sleep((long) (ContainerBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
 	}
 
 }

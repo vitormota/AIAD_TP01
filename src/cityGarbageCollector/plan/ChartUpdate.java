@@ -5,6 +5,7 @@ import jadex.bdiv3.annotation.PlanAPI;
 import jadex.bdiv3.annotation.PlanBody;
 import jadex.bdiv3.annotation.PlanCapability;
 import jadex.bdiv3.runtime.IPlan;
+import cityGarbageCollector.GCollector;
 import cityGarbageCollector.agent.ChartsBDI;
 
 @Plan
@@ -29,6 +30,9 @@ public class ChartUpdate {
 	 */
 	@PlanBody
 	public void body() throws InterruptedException {
+		while(GCollector.getInstance().getPauseState()){
+			Thread.sleep(1000);
+		}
 		chart.updateChart();
 		Thread.sleep((long) (ChartsBDI.SLEEP_MILLIS));
 	}

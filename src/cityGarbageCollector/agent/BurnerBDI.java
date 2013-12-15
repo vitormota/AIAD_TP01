@@ -9,11 +9,19 @@ import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
+import jadex.micro.annotation.Argument;
+import jadex.micro.annotation.Arguments;
 
 
 @Agent
+@Arguments({
+	@Argument(name="Location", clazz=Location.class),
+	@Argument(name="Type", clazz=CollectorBDI.Trash_Type.class, defaultvalue="Common")
+})
 public class BurnerBDI {
 
+	public static final String CLASS_PATH = "cityGarbageCollector/agent/BurnerBDI.class";
+	
 	@Agent
 	protected BDIAgent agent;
 	
@@ -26,7 +34,10 @@ public class BurnerBDI {
 	@AgentCreated
 	public void init() {
 		wasteDumped = 0;
-		position = new Location(1,5);
+		position = (Location) agent.getArgument("Location");
+		if(position == null){
+			position = new Location(1, 5);
+		}
 		GCollector.getInstance().addBurnerAgent(this);
 	}
 

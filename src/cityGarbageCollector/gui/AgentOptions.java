@@ -5,14 +5,18 @@ import jadex.bridge.service.types.cms.CreationInfo;
 import java.util.HashMap;
 import java.util.Map;
 
+import javax.swing.JComboBox;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
+import cityGarbageCollector.agent.BurnerBDI;
 import cityGarbageCollector.agent.CollectorBDI;
 import cityGarbageCollector.agent.CollectorBDI.Trash_Type;
+import cityGarbageCollector.agent.ContainerBDI;
 
+@SuppressWarnings("serial")
 public class AgentOptions extends JPanel {
 
 	public AgentOptions() {
@@ -29,6 +33,7 @@ public class AgentOptions extends JPanel {
 	// <editor-fold defaultstate="collapsed" desc="Generated Code">
 	private void initComponents() {
 
+		cb_agents_model = new JComboBox();
 		jLabel1 = new javax.swing.JLabel();
 		tf_agent_name = new javax.swing.JTextField();
 		jLabel2 = new javax.swing.JLabel();
@@ -42,6 +47,9 @@ public class AgentOptions extends JPanel {
 		bt_agent_deploy = new javax.swing.JButton();
 
 		setBorder(new javax.swing.border.SoftBevelBorder(javax.swing.border.BevelBorder.RAISED));
+
+		cb_agents_model.setModel(new javax.swing.DefaultComboBoxModel(GCollector.Agents_models.values()));
+		add(cb_agents_model);
 
 		jLabel1.setText("Name:");
 		add(jLabel1);
@@ -88,6 +96,7 @@ public class AgentOptions extends JPanel {
 			}
 		});
 		add(bt_agent_deploy);
+		
 	}// </editor-fold>
 
 	public void setAgentLocation(int x, int y) {
@@ -112,25 +121,49 @@ public class AgentOptions extends JPanel {
 			System.err.println("Some values could not be parsed.");
 		}
 		Location loc = new Location(x, y);
-		if (GCollector.getInstance().isRoadOnLocation(loc)) {
-			Trash_Type type = (Trash_Type) cb_agent_type.getSelectedItem();
-			Map<String, Object> agentArgs = new HashMap<String, Object>();
-			agentArgs.put("Location", loc);
-			if (cap != -1)
-				agentArgs.put("Capacity", cap);
-			if (name.length() > 0)
-				agentArgs.put("Name", name);
-			agentArgs.put("Type", type);
-			CreationInfo cInfo = new CreationInfo(agentArgs);
-			GCollector.getInstance().launchAgent(CollectorBDI.CLASS_PATH, cInfo);
-		} else {
-			JOptionPane.showMessageDialog(this, "Please insert agent on a Road.", "Bad location", JOptionPane.ERROR_MESSAGE);
+		Trash_Type type = (Trash_Type) cb_agent_type.getSelectedItem();
+		Map<String, Object> agentArgs = new HashMap<String, Object>();
+		agentArgs.put("Location", loc);
+		switch ((GCollector.Agents_models) cb_agents_model.getSelectedItem()) {
+		case Collector:
+			if (GCollector.getInstance().isRoadOnLocation(loc)) {
+				if (cap != -1)
+					agentArgs.put("Capacity", cap);
+				if (name.length() > 0)
+					agentArgs.put("Name", name);
+				agentArgs.put("Type", type);
+				CreationInfo cInfo = new CreationInfo(agentArgs);
+				GCollector.getInstance().launchAgent(CollectorBDI.CLASS_PATH, cInfo);
+			} else {
+				JOptionPane.showMessageDialog(this, "Please insert agent on a Road.", "Bad location", JOptionPane.ERROR_MESSAGE);
+			}
+			break;
+		case Burner:
+			if (!GCollector.getInstance().isRoadOnLocation(loc)) {
+				CreationInfo cInfo = new CreationInfo(agentArgs);
+				GCollector.getInstance().launchAgent(BurnerBDI.CLASS_PATH, cInfo);
+			} else {
+				JOptionPane.showMessageDialog(this, "Please insert agent off Road.", "Bad location", JOptionPane.ERROR_MESSAGE);
+			}
+			break;
+		case Container:
+			if (!GCollector.getInstance().isRoadOnLocation(loc)) {
+				CreationInfo cInfo = new CreationInfo(agentArgs);
+				GCollector.getInstance().launchAgent(ContainerBDI.CLASS_PATH, cInfo);
+			} else {
+				JOptionPane.showMessageDialog(this, "Please insert agent off Road.", "Bad location", JOptionPane.ERROR_MESSAGE);
+			}
+			break;
+		default:
+			break;
 		}
+
 	}
 
 	// Variables declaration - do not modify
 	private javax.swing.JButton bt_agent_deploy;
 	private javax.swing.JComboBox cb_agent_type;
+	private javax.swing.JComboBox cb_agents_model;
 	private javax.swing.JLabel jLabel1;
 	private javax.swing.JLabel jLabel2;
 	private javax.swing.JLabel jLabel3;

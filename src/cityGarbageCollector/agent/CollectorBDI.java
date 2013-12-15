@@ -324,6 +324,10 @@ public static enum Trash_Type{
 		return nearestLoc;
 	}
 	
+	public int getCapacity(){
+		return capacity;
+	}
+	
 	
 	public String getLocalName() {
 		return agent.getComponentIdentifier().getLocalName();

@@ -1,11 +1,6 @@
 package cityGarbageCollector;
 
-import jadex.base.Starter;
-import jadex.bdiv3.BDIAgent;
-import jadex.bridge.IComponentIdentifier;
 import jadex.bridge.IExternalAccess;
-import jadex.bridge.service.RequiredServiceInfo;
-import jadex.bridge.service.search.SServiceProvider;
 import jadex.bridge.service.types.cms.CreationInfo;
 import jadex.bridge.service.types.cms.IComponentManagementService;
 import jadex.commons.future.ThreadSuspendable;
@@ -18,8 +13,8 @@ import cityGarbageCollector.RoadMap.Road_Type;
 import cityGarbageCollector.agent.BurnerBDI;
 import cityGarbageCollector.agent.CityBDI;
 import cityGarbageCollector.agent.CollectorBDI;
+import cityGarbageCollector.agent.CollectorBDI.Trash_Type;
 import cityGarbageCollector.agent.ContainerBDI;
-import cityGarbageCollector.agent.BurnerBDI;
 import cityGarbageCollector.gui.City.Gridpanel;
 import cityGarbageCollector.gui.Environment;
 
@@ -34,6 +29,10 @@ public class GCollector {
 	// ================================================================================
 	// Public
 	// ================================================================================
+
+	public static enum Agents_models {
+		Collector, Container, Burner
+	}
 
 	public static boolean verbose = true;
 
@@ -88,6 +87,38 @@ public class GCollector {
 		if (instance == null)
 			instance = new GCollector();
 		return instance;
+	}
+
+	public String getCollectorTag(Location loc) {
+		String res = "<html><font color='";
+		int cap = 0, quant = 0;
+		Trash_Type t = Trash_Type.Common;
+		for (CollectorBDI c : collector_agents) {
+			if (c.getLocation().equals(loc)) {
+				t = c.type;
+				cap = c.getCapacity();
+				quant = c.getActualWasteQuantity();
+				break;
+			}
+		}
+		switch (t) {
+		case Common:
+			res += "green";
+			break;
+		case Metal:
+			res += "white";
+			break;
+		case Paper:
+			res += "yellow";
+			break;
+		case Plastic:
+			res += "#00FFFF";
+			break;
+		default:
+			break;
+		}
+		res += "'><b>" + quant + "/" + cap + "</b></font></html>";
+		return res;
 	}
 
 	public boolean isRoadOnLocation(Location loc) {

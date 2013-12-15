@@ -16,13 +16,21 @@ import jadex.micro.annotation.Agent;
 import jadex.micro.annotation.AgentBody;
 import jadex.micro.annotation.AgentCreated;
 import jadex.micro.annotation.AgentKilled;
+import jadex.micro.annotation.Argument;
+import jadex.micro.annotation.Arguments;
 
 
 @Agent
 @Plans({ 
 	@Plan(trigger = @Trigger(goals = ContainerBDI.PerformCreateWaste.class), body = @Body(CreateWaste.class)) })
+@Arguments({
+	@Argument(name="Location", clazz=Location.class),
+	@Argument(name="Type", clazz=CollectorBDI.Trash_Type.class, defaultvalue="Common")
+})
 public class ContainerBDI {
 
+	public static final String CLASS_PATH = "cityGarbageCollector/agent/ContainerBDI.class";
+	
 	@Agent
 	protected BDIAgent agent;
 
@@ -34,6 +42,9 @@ public class ContainerBDI {
 	private boolean pause = false;
 	@Belief
 	private int wasteQuantity;
+	
+	@Belief
+	public static final long SLEEP_MILLIS = 500;
 
 	public int getWasteQuantity() {
 		return wasteQuantity;
@@ -41,7 +52,10 @@ public class ContainerBDI {
 
 	@AgentCreated
 	public void init() {
-		position = new Location(1,0);
+		position = (Location) agent.getArgument("Location");
+		if(position == null){
+			position = new Location(1, 0);
+		}
 		wasteQuantity=60;
 		GCollector.getInstance().addContainerAgent(this);
 	}
