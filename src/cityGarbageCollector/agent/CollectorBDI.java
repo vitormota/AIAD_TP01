@@ -135,7 +135,7 @@ public class CollectorBDI {
 		actualWasteQuantity = 0;
 		this.pause = GCollector.getInstance().getPauseState();
 		GCollector.getInstance().addCollectorAgent(this);
-		memory=GCollector.getInstance().getMemory();
+		memory=GCollector.getInstance().memory;
 		onGoing=false; //TODO
 		comunication=true; //TODO
 	}
@@ -147,6 +147,8 @@ public class CollectorBDI {
 		agent.dispatchTopLevelGoal(new CheckContainer());
 		agent.dispatchTopLevelGoal(new PerformPatrol());
 		agent.dispatchTopLevelGoal(new DumpGoal());
+		// System.out.println("agentbody");
+		//sendMessage("OKKKK");
 	}
 
 
