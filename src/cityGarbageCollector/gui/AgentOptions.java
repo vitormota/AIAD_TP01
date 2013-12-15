@@ -149,8 +149,8 @@ public class AgentOptions extends JPanel {
 		case Container:
 			if (!GCollector.getInstance().isRoadOnLocation(loc)) {
 				CreationInfo cInfo = new CreationInfo(agentArgs);
-				GCollector.getInstance().launchAgent(ContainerBDI.CLASS_PATH, cInfo);
 				agentArgs.put("Type", type);
+				GCollector.getInstance().launchAgent(ContainerBDI.CLASS_PATH, cInfo);
 			} else {
 				JOptionPane.showMessageDialog(this, "Please insert agent off Road.", "Bad location", JOptionPane.ERROR_MESSAGE);
 			}

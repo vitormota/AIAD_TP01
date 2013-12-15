@@ -244,13 +244,13 @@ public class CollectorBDI {
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class PerformPatrol {
 
-		//		/**
-		//		 * Suspend the goal when on pause.
-		//		 */
-		//		@GoalContextCondition(rawevents = "pause")
-		//		public boolean checkContext() {
-		//			return (!pause && !full);
-		//		}
+		/**
+		 * Suspend the goal when on pause.
+		 */
+		@GoalContextCondition(rawevents = "pause")
+		public boolean checkContext() {
+			return (!pause && !full);
+		}
 
 	}
 

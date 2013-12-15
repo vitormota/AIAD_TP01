@@ -40,7 +40,7 @@ public class DumpWastePlan {
 	 */
 	@PlanBody
 	public void body() throws InterruptedException {
-		System.out.println("DumpWastePlan body!");
+		//System.out.println("DumpWastePlan body!");
 		
 		Location[] burnerlocations = GCollector.getInstance().getBurnerlocations();
 		Location loc = collector.getLocation();

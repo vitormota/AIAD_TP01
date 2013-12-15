@@ -34,13 +34,13 @@ public class GoToBurnerPlan {
 	 */
 	@PlanBody
 	public void body() throws InterruptedException {
-		System.out.println("GOTOBURNER Plan body!");
+		//System.out.println("GOTOBURNER Plan body!");
 		while (collector.pause) {
 			Thread.sleep(1000);
 		}
 		if(collector.memory) {
 			if(collector.aux==false) {
-				//descola-se para a posição do burner
+				//descola-se para a posiï¿½ï¿½o do burner
 				Location loc = collector.getNearestBurner();
 				collector.goToLocation(loc);
 				collector.aux=true;

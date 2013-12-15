@@ -27,7 +27,7 @@ public class PickUpWastePlan {
 
 
 	public void getWaste(ContainerBDI container) {
-		System.out.println("at getWaste");
+		//System.out.println("at getWaste");
 		int quantity=0;
 		System.out.println(collector.getRemainingCapacity());
 		System.out.println(container.getWasteQuantity());
