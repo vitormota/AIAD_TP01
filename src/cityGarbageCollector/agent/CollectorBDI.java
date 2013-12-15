@@ -57,8 +57,8 @@ import cityGarbageCollector.plan.Wander;
 @Description("Trash collector agent")
 @ProvidedServices(@ProvidedService(type=IChatService.class, implementation=@Implementation(ChatService.class)))
 @RequiredServices({
-@RequiredService(name="chatservices", type=IChatService.class, multiple=true,
-	binding=@Binding(dynamic=true, scope=Binding.SCOPE_PLATFORM))
+	@RequiredService(name="chatservices", type=IChatService.class, multiple=true,
+			binding=@Binding(dynamic=true, scope=Binding.SCOPE_PLATFORM))
 })
 @Plans({ @Plan(trigger = @Trigger(goals = CollectorBDI.PerformPatrol.class), body = @Body(Wander.class)),
 	@Plan(trigger = @Trigger(goals = CollectorBDI.CheckContainer.class), body = @Body(PickUpWastePlan.class)),
@@ -73,7 +73,7 @@ import cityGarbageCollector.plan.Wander;
 public class CollectorBDI {
 
 	public static final String CLASS_PATH = "cityGarbageCollector/agent/CollectorBDI.class";
-	
+
 	@Agent
 	protected BDIAgent agent;
 
@@ -82,7 +82,7 @@ public class CollectorBDI {
 	
 	public boolean aux = false;
 
-public static enum Trash_Type{
+	public static enum Trash_Type{
 		Common, Metal, Plastic, Paper
 	}
 	
@@ -102,10 +102,12 @@ public static enum Trash_Type{
 	private LinkedList<Location> steps;
 
 	@Belief
-	public static final long SLEEP_MILLIS = 500;
-	
+	private boolean onGoing=false;
+
 	@Belief
-	private static final int nrMsg=0;
+	public static final long SLEEP_MILLIS = 500;
+
+	public static int nrMsg=0;
 
 	@AgentCreated
 	public void init() {
@@ -120,9 +122,10 @@ public static enum Trash_Type{
 		actualWasteQuantity = 0;
 		this.pause = GCollector.getInstance().getPauseState();
 		GCollector.getInstance().addCollectorAgent(this);
+		onGoing=false;
 	}
-	
-	
+
+
 
 	@AgentBody
 	public void body() {
@@ -175,7 +178,7 @@ public static enum Trash_Type{
 		 */
 		@GoalContextCondition(rawevents = "pause")
 		public boolean checkContext(){
-			return (!pause && !full);
+			return (!pause);
 		}
 	}
 
@@ -189,7 +192,7 @@ public static enum Trash_Type{
 			return !pause;
 		}
 	}
-	
+
 
 	@Goal
 	public class PickUpWaste {
@@ -202,27 +205,6 @@ public static enum Trash_Type{
 	// @Goal(deliberation=@Deliberation(inhibits={PerformPatrol.class, CheckContainer.class}))
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class GoToBurnerGoal {
-
-		// /**
-		// * When the chargestate is below 0.2
-		// * the cleaner will activate this goal.
-		// *
-		// */
-		// @GoalMaintainCondition(rawevents="actualWasteQuantity")
-		// public boolean checkMaintain()
-		// {
-		// return (actualWasteQuantity < 50);
-		// }
-		//
-		// /**
-		// * The target condition determines when
-		// * the goal goes back to idle.
-		// */
-		// @GoalTargetCondition(rawevents="actualWasteQuantity")
-		// public boolean checkTarget()
-		// {
-		// return (actualWasteQuantity == 0);
-		// }*/
 
 		protected boolean fullHere;
 
@@ -240,19 +222,6 @@ public static enum Trash_Type{
 		}
 
 		/**
-		 * The goal is achieved when the position
-		 * of the cleaner is near to the target position.
-		 * 
-		 * @GoalContextCondition(rawevents="full")
-		 *                                         public boolean checkTarget()
-		 *                                         {
-		 *                                         System.out.println(
-		 *                                         "checktarget");
-		 *                                         return !full;
-		 *                                         }
-		 */
-
-		/**
 		 * Drop the goal when collector is not full
 		 */
 		@GoalDropCondition(rawevents = "full")
@@ -266,13 +235,13 @@ public static enum Trash_Type{
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
 	public class PerformPatrol {
 
-//		/**
-//		 * Suspend the goal when on pause.
-//		 */
-//		@GoalContextCondition(rawevents = "pause")
-//		public boolean checkContext() {
-//			return (!pause && !full);
-//		}
+		//		/**
+		//		 * Suspend the goal when on pause.
+		//		 */
+		//		@GoalContextCondition(rawevents = "pause")
+		//		public boolean checkContext() {
+		//			return (!pause && !full);
+		//		}
 
 	}
 
@@ -288,7 +257,7 @@ public static enum Trash_Type{
 	public int getRemainingCapacity() {
 		return capacity - actualWasteQuantity;
 	}
-	
+
 	public void togglePause() {
 		pause = !pause;
 	}
@@ -341,7 +310,7 @@ public static enum Trash_Type{
 	 *  Execute the functional body of the agent.
 	 *  Is only called once.
 	 */
-	private void sendMessage(final String text, final boolean first) {
+	public void sendMessage(final String text, final boolean first) {
 		IFuture<Collection<IChatService>>	chatservices	= agent.getServiceContainer().getRequiredServices("chatservices");
 		chatservices.addResultListener(new DefaultResultListener<Collection<IChatService>>()
 		{
@@ -356,17 +325,25 @@ public static enum Trash_Type{
 	}
 
 	public void receiveMessage(String nick, String text, boolean first) {
-		if(nick != getLocalName())
-		{
-			String[] msg = text.split("-");
-			if(first) {
-				
+		if(!onGoing && !full) {
+			if(nick != getLocalName())
+			{
+				String[] msg = text.split("-");
+				String nrmsg = msg[0];
+				if(first) { //mensagem inicial
+					if(msg[1]=="") { //se mesmo tipo de lixo
+						Location loc = new Location(Integer.parseInt(msg[2]),Integer.parseInt(msg[3]));
+						int dist = (GCollector.getInstance().getAgentTrip(position, loc)).size();
+						String text2 = nrmsg+"-"+Integer.toString(dist);
+						sendMessage(text2, false);
+					}
+				}
+				else {
+					//
+				}
+
+
 			}
-			else {
-				
-			}
-			
-			
 		}
 	}
 }

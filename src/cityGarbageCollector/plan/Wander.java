@@ -4,7 +4,6 @@ import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.PlanAPI;
 import jadex.bdiv3.annotation.PlanBody;
 import jadex.bdiv3.annotation.PlanCapability;
-import jadex.bdiv3.annotation.PlanContextCondition;
 import jadex.bdiv3.runtime.IPlan;
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.agent.CollectorBDI;

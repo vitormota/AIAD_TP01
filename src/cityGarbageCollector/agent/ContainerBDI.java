@@ -2,6 +2,7 @@ package cityGarbageCollector.agent;
 
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.Location;
+import cityGarbageCollector.agent.CollectorBDI.Trash_Type;
 import cityGarbageCollector.plan.CreateWaste;
 import jadex.bdiv3.BDIAgent;
 import jadex.bdiv3.annotation.Belief;
@@ -34,8 +35,11 @@ public class ContainerBDI {
 	@Agent
 	protected BDIAgent agent;
 
+	@Belief
+	public Trash_Type type = Trash_Type.Metal;
+
 	private int cont = 0;
-	
+
 	@Belief
 	private Location position;
 	@Belief
@@ -43,6 +47,9 @@ public class ContainerBDI {
 	@Belief
 	private int wasteQuantity;
 	
+	@Belief
+	private int maxCapacity;
+
 	@Belief
 	public static final long SLEEP_MILLIS = 500;
 
@@ -57,6 +64,7 @@ public class ContainerBDI {
 			position = new Location(1, 0);
 		}
 		wasteQuantity=60;
+		maxCapacity=100;
 		GCollector.getInstance().addContainerAgent(this);
 	}
 
@@ -64,19 +72,23 @@ public class ContainerBDI {
 	public void body() {
 		agent.dispatchTopLevelGoal(new PerformCreateWaste()).get();
 	}
-	
+
 	@AgentKilled
 	public void killed() {
 
 	}
 
 	public void incrementWaste() throws InterruptedException {
-		cont++;
-		if(cont==50000) {
+		while(wasteQuantity<maxCapacity) {
+			cont++;
+			if(cont==50000) {
+				wasteQuantity+=1;
+				cont=0;
+			}
 			wasteQuantity+=1;
-			cont=0;
+			//System.out.println("Waste quantity: "+(int)wasteQuantity);
 		}
-		//System.out.println("Waste quantity: "+(int)wasteQuantity);
+		Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
 	}
 
 
