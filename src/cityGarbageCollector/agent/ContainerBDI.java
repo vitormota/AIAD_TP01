@@ -31,12 +31,12 @@ import jadex.micro.annotation.Arguments;
 public class ContainerBDI {
 
 	public static final String CLASS_PATH = "cityGarbageCollector/agent/ContainerBDI.class";
-	
+
 	@Agent
 	protected BDIAgent agent;
 
 	@Belief
-	public Trash_Type type = Trash_Type.Metal;
+	public Trash_Type type = Trash_Type.Common;
 
 	private int cont = 0;
 
@@ -46,7 +46,7 @@ public class ContainerBDI {
 	private boolean pause = false;
 	@Belief
 	private int wasteQuantity;
-	
+
 	@Belief
 	private int maxCapacity;
 
@@ -63,7 +63,11 @@ public class ContainerBDI {
 		if(position == null){
 			position = new Location(1, 0);
 		}
-		wasteQuantity=60;
+		type = (Trash_Type) agent.getArgument("Type");
+		if(type == null){
+			type = Trash_Type.Common;
+		}
+		wasteQuantity=0;
 		maxCapacity=100;
 		GCollector.getInstance().addContainerAgent(this);
 	}

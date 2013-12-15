@@ -33,8 +33,11 @@ import jadex.micro.annotation.RequiredServices;
 import jadex.rules.eca.annotations.Event;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
 
 import cityGarbageCollector.ChatService;
 import jadex.micro.annotation.Argument;
@@ -79,13 +82,13 @@ public class CollectorBDI {
 
 	@Belief
 	public String name;
-	
+
 	public boolean aux = false;
 
 	public static enum Trash_Type{
 		Common, Metal, Plastic, Paper
 	}
-	
+
 	@Belief
 	public Trash_Type type = Trash_Type.Common;
 
@@ -102,15 +105,22 @@ public class CollectorBDI {
 	private LinkedList<Location> steps;
 
 	@Belief
+	public boolean memory=false;
+	@Belief
 	private boolean onGoing=false;
+	@Belief
+	private boolean comunication=true;
 
 	@Belief
 	public static final long SLEEP_MILLIS = 500;
+
+	public Map<Integer,Integer> msgMap;
 
 	public static int nrMsg=0;
 
 	@AgentCreated
 	public void init() {
+		msgMap = new HashMap<Integer,Integer>();
 		position = (Location) agent.getArgument("Location");
 		if(position == null){
 			position = new Location(0, 0);
@@ -125,7 +135,9 @@ public class CollectorBDI {
 		actualWasteQuantity = 0;
 		this.pause = GCollector.getInstance().getPauseState();
 		GCollector.getInstance().addCollectorAgent(this);
-		onGoing=false;
+		memory=GCollector.getInstance().getMemory();
+		onGoing=false; //TODO
+		comunication=true; //TODO
 	}
 
 
@@ -135,8 +147,6 @@ public class CollectorBDI {
 		agent.dispatchTopLevelGoal(new CheckContainer());
 		agent.dispatchTopLevelGoal(new PerformPatrol());
 		agent.dispatchTopLevelGoal(new DumpGoal());
-		// System.out.println("agentbody");
-		//sendMessage("OKKKK");
 	}
 
 
@@ -196,12 +206,6 @@ public class CollectorBDI {
 		}
 	}
 
-
-	@Goal
-	public class PickUpWaste {
-
-	}
-
 	/**
 	 * Create a new goal whenever full belief is changed.
 	 */
@@ -230,7 +234,7 @@ public class CollectorBDI {
 		@GoalDropCondition(rawevents = "full")
 		public boolean checkDrop() {
 			System.out.println("goaldrop " + fullHere);
-			return !full;
+			return (!full || !memory);
 		}
 
 	}
@@ -295,20 +299,20 @@ public class CollectorBDI {
 		}
 		return nearestLoc;
 	}
-	
+
 	public int getCapacity(){
 		return capacity;
 	}
-	
-	
+
+
 	public String getLocalName() {
 		return agent.getComponentIdentifier().getLocalName();
 	}
-	
+
 	/** The underlying micro agent. */
 	//@Agent
 	//protected MicroAgent agent;
- 
+
 	/**
 	 *  Execute the functional body of the agent.
 	 *  Is only called once.
@@ -316,7 +320,7 @@ public class CollectorBDI {
 	public void sendMessage(final String text, final boolean first) {
 		IFuture<Collection<IChatService>>	chatservices	= agent.getServiceContainer().getRequiredServices("chatservices");
 		chatservices.addResultListener(new DefaultResultListener<Collection<IChatService>>()
-		{
+				{
 			public void resultAvailable(Collection<IChatService> result)
 			{
 				for(Iterator<IChatService> it=result.iterator(); it.hasNext(); ) {
@@ -324,29 +328,64 @@ public class CollectorBDI {
 					cs.message(agent.getComponentIdentifier().getLocalName(), text, first);
 				}
 			}
-		});
+				});
 	}
+
+
 
 	public void receiveMessage(String nick, String text, boolean first) {
 		if(!onGoing && !full) {
 			if(nick != getLocalName())
 			{
 				String[] msg = text.split("-");
-				String nrmsg = msg[0];
+				Integer nrmsg = Integer.parseInt(msg[0]);
 				if(first) { //mensagem inicial
-					if(msg[1]=="") { //se mesmo tipo de lixo
+					if(msg[1]==(type.toString())) { //se mesmo tipo de lixo
 						Location loc = new Location(Integer.parseInt(msg[2]),Integer.parseInt(msg[3]));
 						int dist = (GCollector.getInstance().getAgentTrip(position, loc)).size();
 						String text2 = nrmsg+"-"+Integer.toString(dist);
 						sendMessage(text2, false);
+						msgMap.put(nrmsg, dist);
+						AuxThread aux = new AuxThread(this, nrmsg);
+						Thread t = new Thread(aux);
+						t.start();
 					}
 				}
 				else {
-					//
+					if(msgMap.get(nrmsg)!=null) {
+						Integer dist = Integer.parseInt(msg[1]);
+						Integer myDist = msgMap.get(nrmsg);
+						if(myDist > dist)
+							msgMap.remove(nrmsg);
+					}
 				}
-
-
 			}
 		}
+	}
+
+	public class AuxThread implements Runnable {
+
+		private CollectorBDI collector;
+		private Integer nr;
+
+		public AuxThread(CollectorBDI col, Integer nr1) {
+			collector=col;
+			nr=nr1;
+		}
+
+		@Override
+		public void run() {
+			try {
+				Thread.sleep(1000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+
+			if(collector.msgMap.get(nr)!=null) {
+				Location loc = GCollector.getInstance().msglocMap.get(nr);
+				collector.goToLocation(loc);		
+			}
+		}
+
 	}
 }
