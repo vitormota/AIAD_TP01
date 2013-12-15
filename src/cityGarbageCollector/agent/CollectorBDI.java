@@ -66,9 +66,9 @@ import cityGarbageCollector.plan.Wander;
 	@Plan(trigger = @Trigger(goals = CollectorBDI.DumpGoal.class), body = @Body(DumpWastePlan.class)) })
 @Arguments({
 	@Argument(name="Location", clazz=Location.class),
-	@Argument(name="Type", clazz=CollectorBDI.Trash_Type.class, defaultvalue="Common"),
+	@Argument(name="Type", clazz=CollectorBDI.Trash_Type.class),
 	@Argument(name="Name", clazz=String.class, defaultvalue="Nameless"),
-	@Argument(name="Capacity", clazz=Integer.class, defaultvalue="10")
+	@Argument(name="Capacity", clazz=Integer.class, defaultvalue="100")
 })
 public class CollectorBDI {
 
@@ -117,6 +117,9 @@ public class CollectorBDI {
 		}
 		steps = new LinkedList<>();
 		type = (Trash_Type) agent.getArgument("Type");
+		if(type == null){
+			type = Trash_Type.Common;
+		}
 		capacity = (Integer) agent.getArgument("Capacity");
 		name = (String) agent.getArgument("Name");
 		actualWasteQuantity = 0;

@@ -64,6 +64,9 @@ public class GCollector {
 	 * singleton instance
 	 */
 	private static GCollector instance = null;
+	
+	public boolean memory = true; 
+	public boolean comunication = true;
 
 	// ================================================================================
 	// Constructors
@@ -268,6 +271,20 @@ public class GCollector {
 	public void modifyMap(Road_Type type, int x, int y) {
 		// TODO Auto-generated method stub
 		env.modifyMap(type, x, y);
+	}
+
+	/**
+	 * @return the memory
+	 */
+	private boolean isMemory() {
+		return memory;
+	}
+
+	/**
+	 * @param memory the memory to set
+	 */
+	private void setMemory(boolean memory) {
+		this.memory = memory;
 	}
 
 }

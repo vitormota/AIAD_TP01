@@ -79,16 +79,17 @@ public class ContainerBDI {
 	}
 
 	public void incrementWaste() throws InterruptedException {
-		while(wasteQuantity<maxCapacity) {
-			cont++;
-			if(cont==50000) {
-				wasteQuantity+=1;
-				cont=0;
-			}
-			wasteQuantity+=1;
-			//System.out.println("Waste quantity: "+(int)wasteQuantity);
-		}
-		Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
+//		while(wasteQuantity<maxCapacity) {
+//			cont++;
+//			if(cont==50000) {
+//				wasteQuantity+=1;
+//				cont=0;
+//			}
+//			wasteQuantity+=1;
+//			//System.out.println("Waste quantity: "+(int)wasteQuantity);
+//		}
+//		Thread.sleep((long) (CollectorBDI.SLEEP_MILLIS / GCollector.getInstance().speed()));
+		if(wasteQuantity<maxCapacity) wasteQuantity++;
 	}
 
 

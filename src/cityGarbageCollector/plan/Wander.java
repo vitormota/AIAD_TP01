@@ -35,7 +35,7 @@ public class Wander {
 	 */
 	@PlanBody
 	public void body() throws InterruptedException {
-		System.out.println("at wander planbody");
+		//System.out.println("at wander planbody");
 		while (collector.pause) {
 			Thread.sleep(1000);
 		}

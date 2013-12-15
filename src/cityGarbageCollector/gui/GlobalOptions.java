@@ -8,6 +8,7 @@ import java.awt.event.KeyEvent;
 import javax.swing.AbstractAction;
 import javax.swing.Action;
 import javax.swing.DefaultComboBoxModel;
+import javax.swing.JCheckBox;
 import javax.swing.JComponent;
 import javax.swing.JPanel;
 import javax.swing.KeyStroke;
@@ -33,6 +34,7 @@ public class GlobalOptions extends JPanel {
 		java.awt.GridBagConstraints gridBagConstraints;
 
 		pn_global_top = new javax.swing.JPanel();
+		cb_memory = new javax.swing.JCheckBox();
 		cb_comunication = new javax.swing.JCheckBox();
 		cb_pause = new javax.swing.JCheckBox();
 		pn_speed_panel = new javax.swing.JPanel();
@@ -57,12 +59,34 @@ public class GlobalOptions extends JPanel {
 		pn_global_top.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Global", javax.swing.border.TitledBorder.CENTER,
 				javax.swing.border.TitledBorder.DEFAULT_POSITION));
 		pn_global_top.setMinimumSize(new java.awt.Dimension(160, 160));
-		pn_global_top.setLayout(new java.awt.GridLayout(3, 1));
+		pn_global_top.setLayout(new java.awt.GridLayout(4, 1));
 
 		cb_comunication.setSelected(true);
 		cb_comunication.setText("Comunication");
 
+		cb_memory.setSelected(true);
+		cb_memory.setText("Memory");
+
 		pn_global_top.add(cb_comunication);
+		pn_global_top.add(cb_memory);
+
+		cb_memory.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				GCollector.getInstance().memory = ((JCheckBox) e.getSource()).isSelected();
+			}
+		});
+
+		cb_comunication.addActionListener(new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				GCollector.getInstance().comunication = ((JCheckBox) e.getSource()).isSelected();
+			}
+		});
 
 		cb_pause.setText("Pause");
 		pn_global_top.add(cb_pause);
@@ -224,6 +248,7 @@ public class GlobalOptions extends JPanel {
 
 	private javax.swing.JButton bt_global_modify;
 	private javax.swing.JCheckBox cb_comunication;
+	private javax.swing.JCheckBox cb_memory;
 	private javax.swing.JComboBox cb_global_speed;
 	private javax.swing.JComboBox cb_modify;
 	private javax.swing.JCheckBox cb_pause;

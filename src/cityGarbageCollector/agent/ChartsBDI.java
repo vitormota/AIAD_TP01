@@ -20,7 +20,6 @@ import java.awt.geom.Ellipse2D;
 import java.net.URL;
 
 import javax.swing.ImageIcon;
-import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import org.jfree.chart.ChartFactory;
@@ -46,7 +45,7 @@ import com.sun.org.glassfish.gmbal.Description;
 
 @Agent
 @Description("Agent that collects information about other agents creating and updating charts")
-@Plans({ @Plan(trigger = @Trigger(goals = ChartsBDI.ChartUpdateGoal.class), body = @Body(ChartUpdate.class)) })
+@Plans({ @Plan(trigger = @Trigger(goals = ChartsBDI.ChartUpdate.class), body = @Body(ChartUpdate.class)) })
 public class ChartsBDI {
 
 	@Agent
@@ -86,7 +85,7 @@ public class ChartsBDI {
 
 	@AgentBody
 	public void body() {
-		agent.dispatchTopLevelGoal(new ChartUpdateGoal()).get();
+		agent.dispatchTopLevelGoal(new ChartUpdate()).get();
 	}
 
 	/**
@@ -172,7 +171,7 @@ public class ChartsBDI {
 	// ================================================================================
 
 	@Goal(excludemode = ExcludeMode.Never, retry = true, succeedonpassed = false)
-	public class ChartUpdateGoal {
+	public class ChartUpdate {
 		// Empty class, needed to tell the agent to pursue the goal and plan
 		// forever
 	}

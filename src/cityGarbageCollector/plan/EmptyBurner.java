@@ -1,25 +1,25 @@
 package cityGarbageCollector.plan;
 
-import cityGarbageCollector.GCollector;
-import cityGarbageCollector.agent.CollectorBDI;
-import cityGarbageCollector.agent.ContainerBDI;
 import jadex.bdiv3.annotation.Plan;
 import jadex.bdiv3.annotation.PlanBody;
 import jadex.bdiv3.annotation.PlanCapability;
+import cityGarbageCollector.GCollector;
+import cityGarbageCollector.agent.BurnerBDI;
+import cityGarbageCollector.agent.ContainerBDI;
 
 @Plan
-public class CreateWaste {
+public class EmptyBurner {
 
 	@PlanCapability
-	private ContainerBDI container;
+	private BurnerBDI burner;
 
 	// -------- constructors --------
 
 	/**
 	 * Create a new plan.
 	 */
-	public CreateWaste() {
-
+	public EmptyBurner() {
+		// TODO Auto-generated constructor stub
 	}
 
 	// -------- methods --------
@@ -32,10 +32,10 @@ public class CreateWaste {
 	@PlanBody
 	public void body() throws InterruptedException {
 		while (GCollector.getInstance().getPauseState()) {
-			Thread.sleep(ContainerBDI.SLEEP_MILLIS);
+			Thread.sleep(1000);
 		}
-		container.incrementWaste();
-		Thread.sleep((long) ((ContainerBDI.SLEEP_MILLIS * (Math.random()) + 0.2) / GCollector.getInstance().speed()));
+		burner.burnWaste();
+		Thread.sleep((long) ((ContainerBDI.SLEEP_MILLIS * (Math.random()) + 0.5) / GCollector.getInstance().speed()));
 	}
 
 }
