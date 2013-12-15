@@ -107,7 +107,7 @@ public class CollectorBDI {
 	@Belief
 	public boolean memory=false;
 	@Belief
-	private boolean onGoing=false;
+	public boolean onGoing=false;
 	@Belief
 	private boolean comunication=true;
 
@@ -385,7 +385,8 @@ public class CollectorBDI {
 
 			if(collector.msgMap.get(nr)!=null) {
 				Location loc = GCollector.getInstance().msglocMap.get(nr);
-				collector.goToLocation(loc);		
+				collector.goToLocation(loc);
+				onGoing=true;
 			}
 		}
 

@@ -37,7 +37,6 @@ import org.jfree.ui.ApplicationFrame;
 import org.jfree.ui.HorizontalAlignment;
 import org.jfree.ui.RectangleEdge;
 
-import tutorial.LineChartDemo1;
 import cityGarbageCollector.GCollector;
 import cityGarbageCollector.plan.ChartUpdate;
 
@@ -132,7 +131,7 @@ public class ChartsBDI {
 		CategoryPlot plot = (CategoryPlot) chart.getPlot();
 		// plot.setRangePannable(true);
 		plot.setRangeGridlinesVisible(false);
-		URL imageURL = LineChartDemo1.class.getClassLoader().getResource("OnBridge11small.png");
+		URL imageURL = null;
 		if (imageURL != null) {
 			ImageIcon temp = new ImageIcon(imageURL);
 			// use ImageIcon because it waits for the image to load...
