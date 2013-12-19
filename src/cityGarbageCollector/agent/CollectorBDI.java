@@ -109,7 +109,7 @@ public class CollectorBDI {
 	@Belief
 	public boolean onGoing=false;
 	@Belief
-	private boolean comunication=true;
+	public boolean comunication;
 
 	@Belief
 	public static final long SLEEP_MILLIS = 500;
@@ -136,8 +136,8 @@ public class CollectorBDI {
 		this.pause = GCollector.getInstance().getPauseState();
 		GCollector.getInstance().addCollectorAgent(this);
 		memory=GCollector.getInstance().memory;
-		onGoing=false; //TODO
-		comunication=true; //TODO
+		onGoing=false;
+		comunication=GCollector.getInstance().comunication;
 	}
 
 
@@ -147,8 +147,6 @@ public class CollectorBDI {
 		agent.dispatchTopLevelGoal(new CheckContainer());
 		agent.dispatchTopLevelGoal(new PerformPatrol());
 		agent.dispatchTopLevelGoal(new DumpGoal());
-		// System.out.println("agentbody");
-		//sendMessage("OKKKK");
 	}
 
 
@@ -220,7 +218,7 @@ public class CollectorBDI {
 		@GoalCreationCondition(rawevents = "full")
 		public GoToBurnerGoal(@Event("full") boolean fullH) {
 			fullHere = fullH;
-			System.out.println("AQUII " + fullHere);
+			//System.out.println("AQUII " + fullHere);
 			/*
 			// se full define os steps para o burner +proximo
 			if (full) { // SUFICIENTE??
@@ -235,7 +233,7 @@ public class CollectorBDI {
 		 */
 		@GoalDropCondition(rawevents = "full")
 		public boolean checkDrop() {
-			System.out.println("goaldrop " + fullHere);
+			//System.out.println("goaldrop " + fullHere);
 			return (!full || !memory);
 		}
 
@@ -336,9 +334,11 @@ public class CollectorBDI {
 
 
 	public void receiveMessage(String nick, String text, boolean first) {
-		if(!onGoing && !full) {
+		//if(!onGoing && !full) {
+		if(!full) {
 			if(nick != getLocalName())
 			{
+				System.out.println(getLocalName()+" from: "+nick+" message: "+text);
 				String[] msg = text.split("-");
 				Integer nrmsg = Integer.parseInt(msg[0]);
 				if(first) { //mensagem inicial
@@ -378,7 +378,7 @@ public class CollectorBDI {
 		@Override
 		public void run() {
 			try {
-				Thread.sleep(1000);
+				Thread.sleep(3000);
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -386,7 +386,7 @@ public class CollectorBDI {
 			if(collector.msgMap.get(nr)!=null) {
 				Location loc = GCollector.getInstance().msglocMap.get(nr);
 				collector.goToLocation(loc);
-				onGoing=true;
+				//onGoing=true;
 			}
 		}
 

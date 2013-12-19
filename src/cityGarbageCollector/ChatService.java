@@ -44,8 +44,10 @@ public class ChatService implements IChatService {
 	//valor booleano reutilizado para identificar se se trata de uma msg inicial
 	@Override
 	public IFuture<Void> message(String nick, String text, boolean first) {
-		System.out.println(agent.getLocalName()+" from: "+nick+" message: "+text);
+		if(GCollector.getInstance().comunication) {
+		//System.out.println(agent.getLocalName()+" from: "+nick+" message: "+text);
 		agent.receiveMessage(nick, text, first);
+		}
 		return null;
 	}
 

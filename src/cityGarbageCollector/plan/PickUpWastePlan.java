@@ -29,15 +29,15 @@ public class PickUpWastePlan {
 	public void getWaste(ContainerBDI container) {
 		//System.out.println("at getWaste");
 		int quantity=0;
-		System.out.println(collector.getRemainingCapacity());
-		System.out.println(container.getWasteQuantity());
+		//System.out.println(collector.getRemainingCapacity());
+		//System.out.println(container.getWasteQuantity());
 
 		if(container.getWasteQuantity() < collector.getRemainingCapacity())
 			quantity=container.getWasteQuantity();
 		else 
 			quantity=collector.getRemainingCapacity();
 
-		System.out.println("quantity:"+quantity);
+		//System.out.println("quantity:"+quantity);
 		container.decrementWaste(quantity);
 		collector.pickWaste(quantity);
 		System.out.println("Picked up: "+ quantity);
@@ -71,19 +71,21 @@ public class PickUpWastePlan {
 	}
 
 	private void process(Location[] clocations, int i) {
-		System.out.println("Container Encontrado!");
+		//System.out.println("Container Encontrado!");
 		ContainerBDI c = GCollector.getInstance().getContainerByLocation(clocations[i]);
 		if((c.type==collector.type) && !collector.full) {
 			getWaste(c);
 		}
 		else {
-			if(c.getWasteQuantity()>50) {
-				//envia msg para agentes do tipo do container
-				CollectorBDI.nrMsg++;
-				String tipoLixo = (c.type).toString();
-				String text=(Integer.toString(CollectorBDI.nrMsg))+"-"+tipoLixo+"-"+Integer.toString((collector.getLocation()).x)+"-"+Integer.toString((collector.getLocation()).y);
-				collector.sendMessage(text, true);
-				GCollector.getInstance().msglocMap.put(CollectorBDI.nrMsg, collector.getLocation());
+			if(GCollector.getInstance().comunication) {
+				if(c.getWasteQuantity()>50) {
+					//envia msg para agentes do tipo do container
+					CollectorBDI.nrMsg++;
+					String tipoLixo = (c.type).toString();
+					String text=(Integer.toString(CollectorBDI.nrMsg))+"-"+tipoLixo+"-"+Integer.toString((collector.getLocation()).x)+"-"+Integer.toString((collector.getLocation()).y);
+					collector.sendMessage(text, true);
+					GCollector.getInstance().msglocMap.put(CollectorBDI.nrMsg, collector.getLocation());
+				}
 			}
 		}
 	}

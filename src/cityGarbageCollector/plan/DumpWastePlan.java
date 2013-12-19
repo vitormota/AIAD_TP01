@@ -30,8 +30,8 @@ public class DumpWastePlan {
 		int q = collector.getActualWasteQuantity();
 		burner.dumpWaste(q);
 		collector.dump();
-		
-		System.out.println("Dumped: "+ q);
+		if(q>0)
+			System.out.println("Dumped: "+ q);
 	}
 
 	/**
@@ -41,7 +41,7 @@ public class DumpWastePlan {
 	@PlanBody
 	public void body() throws InterruptedException {
 		//System.out.println("DumpWastePlan body!");
-		
+
 		Location[] burnerlocations = GCollector.getInstance().getBurnerlocations();
 		Location loc = collector.getLocation();
 
@@ -57,7 +57,7 @@ public class DumpWastePlan {
 				found=true;
 
 			if(found==true) {
-				System.out.println("------Burner Encontrado!");
+				//System.out.println("------Burner Encontrado!");
 				BurnerBDI b = GCollector.getInstance().getBurnerByLocation(burnerlocations[i]);
 				DumpWastetoBurner(b);
 				collector.aux=false;
